@@ -1,0 +1,19 @@
+schema_version: 1
+module_id: dynamodb
+implementation_review: pending
+production_approval: pending
+aws_integration_validation: not_run
+last_local_validation:
+  date: '2026-11-03'
+  terraform: 1.14.8
+  aws_provider: 6.71.0
+  format: passed
+  validate: passed
+  mocked_tests_passed: 10
+  example_configurations_validated: 2
+  trivy: 0.76.1
+  high_or_critical_findings: 0
+validation_evidence:
+  test_definitions: tests/baseline.tftest.hcl
+  local_report: ../../reports/dynamodb.tests.log
+  ci_workflow: ../../.github/workflows/validate.yml

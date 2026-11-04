@@ -1,0 +1,60 @@
+name: Validar módulos
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: baselines-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  terraform:
+    name: Terraform (${{ matrix.module }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [s3, dynamodb, api-gateway]
+    env:
+      TF_IN_AUTOMATION: "1"
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
+        with:
+          terraform_version: 1.14.8
+          terraform_wrapper: false
+      - name: Formato, validación, pruebas y ejemplos
+        run: scripts/validate.sh "${{ matrix.module }}"
+
+  security:
+    name: Seguridad Terraform
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Instalar Trivy desde su release oficial
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          trivy_dir="$RUNNER_TEMP/trivy"
+          mkdir -p "$trivy_dir"
+          gh release download v0.76.1 --repo aquasecurity/trivy \
+            --pattern trivy_0.76.1_Linux-64bit.tar.gz --dir "$trivy_dir"
+          printf '%s  %s\n' \
+            'c7cbe3137fb8a48a17574bede3dd6beb16742d1e9772929940fc90082c39d9c0' \
+            "$trivy_dir/trivy_0.76.1_Linux-64bit.tar.gz" | sha256sum --check --strict
+          tar -xzf "$trivy_dir/trivy_0.76.1_Linux-64bit.tar.gz" -C "$trivy_dir" trivy
+          printf '%s\n' "$trivy_dir" >> "$GITHUB_PATH"
+      - name: Analizar módulos con los valores de sus ejemplos
+        run: scripts/security.sh

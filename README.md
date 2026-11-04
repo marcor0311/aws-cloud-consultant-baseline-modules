@@ -12,4 +12,5 @@ El arquitecto selecciona los módulos para su diseño y el ingeniero los integra
 
 Incluye ejemplos y pruebas automatizadas. La aprobación para producción está pendiente.
 
-[Guía de uso y validación](docs/uso.md) · [Instrucciones para el agente](AGENTS.md)
+[Guía de uso y validación](docs/uso.md)  
+[Instrucciones para el agente](AGENTS.md)

@@ -8,3 +8,5 @@
 - Modificar pruebas de comportamiento cuando cambie el módulo. `terraform test` utiliza exclusivamente proveedores simulados.
 - Ejecutar `scripts/validate.sh` y `scripts/security.sh`. Las pruebas simuladas no acreditan un despliegue real en AWS.
 - Mantener `module.yaml` y `audit-record.yaml` coherentes. Solo el arquitecto autoriza aprobación de producción; nunca inventar revisiones o evidencias.
+- Al actualizar el proveedor, regenerar los lockfiles de módulos y ejemplos con `terraform providers lock -platform=darwin_arm64 -platform=linux_amd64`.
+- El arquitecto revisa los PRs. CODEOWNERS identifica al revisor; la protección de `main` debe exigir su aprobación y los checks de CI.

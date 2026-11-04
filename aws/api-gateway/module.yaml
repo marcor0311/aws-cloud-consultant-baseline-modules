@@ -1,0 +1,14 @@
+schema_version: 1
+module_id: api-gateway
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+profiles:
+  - name: iam
+    example: examples/iam/
+  - name: jwt
+    example: examples/jwt/

@@ -66,6 +66,8 @@ Instalar Terraform 1.14.8 y Trivy 0.76.1 en el equipo. `terraform init` descarga
 
 Los binarios descargados, `.terraform/`, estados, credenciales y reportes locales quedan fuera de Git. Los archivos `.terraform.lock.hcl` solo registran versiones y checksums y sí se versionan. Para desplegar, el proyecto consumidor configura su autenticación AWS y backend; las pruebas simuladas no requieren credenciales.
 
+Los lockfiles incluyen checksums para macOS ARM (`darwin_arm64`) y Linux x86_64 (`linux_amd64`). Al actualizar el proveedor, regenerarlos para ambas plataformas con `terraform providers lock -platform=darwin_arm64 -platform=linux_amd64` en cada configuración.
+
 ```sh
 scripts/validate.sh
 scripts/security.sh

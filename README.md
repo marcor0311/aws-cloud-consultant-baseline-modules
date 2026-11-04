@@ -8,17 +8,6 @@ Módulos Terraform reutilizables para que cada proyecto seleccione y combine con
 | [DynamoDB](aws/dynamodb/README.md) | On-demand o aprovisionado, KMS y recuperación. |
 | [API Gateway](aws/api-gateway/README.md) | HTTP API con Lambda, IAM/JWT, logs y throttling. |
 
-## Estructura
-
-```text
-aws/
-├── api-gateway/
-├── dynamodb/
-└── s3/
-```
-
-Cada módulo incluye código, manifiesto, ejemplos y pruebas. Las instrucciones para Codex están en [AGENTS.md](AGENTS.md).
-
 ## Uso
 
 ```hcl

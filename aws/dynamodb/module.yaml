@@ -7,8 +7,24 @@ entrypoint: .
 readme: README.md
 terraform: ">= 1.9.0, < 2.0.0"
 aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Persistencia NoSQL con recuperación a un punto en el tiempo.
+  required_inputs: [table_name, kms_key_arn, tags]
+  dependencies: [Clave KMS regional, Permisos IAM de acceso para el consumidor]
+  controls: [Cifrado KMS, PITR de 35 días, Protección contra eliminación por defecto]
+  limits: [Sin índices secundarios, Sin réplicas globales, Sin streams ni autoscaling]
+  diagram: diagrams/baseline-piloto.yaml
 profiles:
   - name: on-demand
     example: examples/on-demand/
+    fit: Volumen variable pagado por unidades consumidas.
+    pricing:
+      meters: [ddb-storage, ddb-pitr, ddb-read, ddb-write]
+      shared: [kms-keys, kms-requests]
   - name: provisioned
     example: examples/provisioned/
+    fit: Carga predecible con capacidad de lectura y escritura definida.
+    required_inputs: [read_capacity, write_capacity]
+    pricing:
+      meters: [ddb-storage, ddb-pitr, ddb-rcu-hours, ddb-wcu-hours]
+      shared: [kms-keys, kms-requests]

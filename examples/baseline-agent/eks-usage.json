@@ -1,0 +1,81 @@
+{
+  "region": "us-east-1",
+  "currency": "USD",
+  "assumptions": [
+    "Mes de 730 horas con control plane EKS bajo soporte estándar.",
+    "Nodos m6i.large Linux compartidos On-Demand con un disco raíz gp3 cifrado de 40 GiB por nodo.",
+    "5 GB de ingestión y 10 GB-mes de almacenamiento en CloudWatch Logs.",
+    "Dos claves KMS administradas por el cliente y 10.000 solicitudes simétricas facturables.",
+    "El diseño de red determinará el costo incremental de NAT, endpoints y transferencia."
+  ],
+  "exclusions": [
+    "Impuestos, descuentos y franquicias gratuitas.",
+    "Balanceadores y almacenamiento persistente de las aplicaciones, backups y picos de actualizaciones."
+  ],
+  "scenarios": [
+    {
+      "name": "EKS standard · 2 nodos",
+      "modules": [
+        {
+          "module": "eks",
+          "profile": "standard",
+          "requirement": "Kubernetes privado con nodos administrados",
+          "configuration": {
+            "kubernetes_version": "1.36",
+            "node_group": {
+              "instance_type": "m6i.large",
+              "min_size": 2,
+              "desired_size": 2,
+              "max_size": 4,
+              "disk_size_gib": 40
+            }
+          },
+          "usage": {
+            "eks-standard-hours": 730,
+            "eks-m6i-large-hours": 1460,
+            "eks-gp3-storage": 80,
+            "eks-logs-ingest": 5,
+            "eks-logs-storage": 10
+          }
+        }
+      ],
+      "shared_usage": {
+        "kms-keys": 2,
+        "kms-requests": 10000,
+        "eks-incremental-network": null
+      }
+    },
+    {
+      "name": "EKS scaled · 3 nodos",
+      "modules": [
+        {
+          "module": "eks",
+          "profile": "scaled",
+          "requirement": "Kubernetes privado con nodos administrados",
+          "configuration": {
+            "kubernetes_version": "1.36",
+            "node_group": {
+              "instance_type": "m6i.large",
+              "min_size": 3,
+              "desired_size": 3,
+              "max_size": 6,
+              "disk_size_gib": 40
+            }
+          },
+          "usage": {
+            "eks-standard-hours": 730,
+            "eks-m6i-large-hours": 2190,
+            "eks-gp3-storage": 120,
+            "eks-logs-ingest": 5,
+            "eks-logs-storage": 10
+          }
+        }
+      ],
+      "shared_usage": {
+        "kms-keys": 2,
+        "kms-requests": 10000,
+        "eks-incremental-network": null
+      }
+    }
+  ]
+}

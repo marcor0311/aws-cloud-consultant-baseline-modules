@@ -1,0 +1,71 @@
+{
+  "region": "us-east-1",
+  "currency": "USD",
+  "quoted_on": "2026-11-26",
+  "rates": {
+    "cloudfront-us-https": {
+      "service": "AmazonCloudFront",
+      "sku": "NPFD6SEH9MXS8M4J",
+      "unit": "Requests",
+      "aws_usage_type": "US-Requests-Tier2-HTTPS",
+      "aws_operation": "",
+      "effective_on": "2026-10-01T00:00:00Z",
+      "published_on": "2026-10-19T15:05:00Z",
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonCloudFront/20261019150500/index.json",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0000010000"
+        }
+      ]
+    },
+    "cloudfront-us-egress": {
+      "service": "AmazonCloudFront",
+      "sku": "GV2WFGX37Q9PDSHF",
+      "unit": "GB",
+      "aws_usage_type": "US-DataTransfer-Out-Bytes",
+      "aws_operation": "",
+      "effective_on": "2026-10-01T00:00:00Z",
+      "published_on": "2026-10-19T15:05:00Z",
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonCloudFront/20261019150500/index.json",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "10240",
+          "price": "0.0850000000"
+        },
+        {
+          "start": "10240",
+          "end": "51200",
+          "price": "0.0800000000"
+        },
+        {
+          "start": "51200",
+          "end": "153600",
+          "price": "0.0600000000"
+        },
+        {
+          "start": "153600",
+          "end": "512000",
+          "price": "0.0400000000"
+        },
+        {
+          "start": "512000",
+          "end": "1048576",
+          "price": "0.0300000000"
+        },
+        {
+          "start": "1048576",
+          "end": "5242880",
+          "price": "0.0250000000"
+        },
+        {
+          "start": "5242880",
+          "end": "Inf",
+          "price": "0.0200000000"
+        }
+      ]
+    }
+  }
+}

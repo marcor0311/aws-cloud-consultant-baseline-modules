@@ -7,8 +7,25 @@ entrypoint: .
 readme: README.md
 terraform: ">= 1.9.0, < 2.0.0"
 aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: API HTTP regional autenticada con integración Lambda.
+  required_inputs: [name, lambda_function_arn, log_kms_key_arn, tags]
+  dependencies: [Función Lambda en la cuenta y región del API, Clave KMS con permiso para CloudWatch Logs]
+  controls: [Rutas autenticadas, Logs cifrados, Throttling, Permiso Lambda limitado al API y stage]
+  limits: [Endpoint regional, Sin API privada ni REST API, Sin WAF ni dominio propio]
+  diagram: diagrams/baseline-piloto.yaml
 profiles:
   - name: iam
     example: examples/iam/
+    fit: Integraciones que firman las solicitudes con AWS SigV4.
+    pricing:
+      meters: [http-api-requests, logs-ingest, logs-storage]
+      shared: [lambda-requests, lambda-x86-gb-seconds, kms-keys, kms-requests, internet-egress]
   - name: jwt
     example: examples/jwt/
+    fit: Clientes autenticados por un emisor OIDC y una audiencia configurada.
+    required_inputs: [jwt.issuer, jwt.audience]
+    dependencies: [Emisor OIDC y JWKS accesibles por API Gateway]
+    pricing:
+      meters: [http-api-requests, logs-ingest, logs-storage]
+      shared: [lambda-requests, lambda-x86-gb-seconds, kms-keys, kms-requests, internet-egress]

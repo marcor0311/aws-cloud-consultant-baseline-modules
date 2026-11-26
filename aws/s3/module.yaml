@@ -7,8 +7,23 @@ entrypoint: .
 readme: README.md
 terraform: ">= 1.9.0, < 2.0.0"
 aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Almacenamiento privado de objetos con cifrado KMS.
+  required_inputs: [bucket_name, kms_key_arn, tags]
+  dependencies: [Clave KMS en la región del bucket, Bucket destino si se habilitan logs de acceso]
+  controls: [Bloqueo de acceso público, TLS obligatorio, SSE-KMS, Versionado habilitado por defecto]
+  limits: [Sin Object Lock, Sin replicación o distribución CDN]
+  diagram: diagrams/baseline-piloto.yaml
 profiles:
   - name: default
     example: examples/default/
+    fit: Objetos privados con historial de versiones y sin expiración automática.
+    pricing:
+      meters: [s3-standard-storage, s3-write, s3-read]
+      shared: [kms-keys, kms-requests, internet-egress]
   - name: retention
     example: examples/retention/
+    fit: Retención configurable para objetos y versiones.
+    pricing:
+      meters: [s3-standard-storage, s3-write, s3-read]
+      shared: [kms-keys, kms-requests, internet-egress]

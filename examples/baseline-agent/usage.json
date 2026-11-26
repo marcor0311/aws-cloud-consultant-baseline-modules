@@ -1,0 +1,180 @@
+{
+  "region": "us-east-1",
+  "currency": "USD",
+  "assumptions": [
+    "Carga de ejemplo aislada por un mes de 730 horas. Cargos públicos OnDemand sin franquicias.",
+    "S3 Standard con objetos y versiones previas incluidos. El perfil de retención reduce 40 GB-mes; mismos GET y PUT.",
+    "DynamoDB con 10 GB-mes de datos y PITR. El perfil aprovisionado usa 5 RCU y 5 WCU durante las 730 horas.",
+    "HTTP API con un millón de solicitudes facturables y una invocación Lambda x86 de 128 MiB y 100 ms por solicitud.",
+    "Dos claves KMS simétricas, con 10 mil operaciones. Una se comparte entre S3 y DynamoDB, y la otra cifra los logs de API.",
+    "Salida a Internet de 20 GB agregados. CloudWatch Logs Standard con 1 GB de ingestión y 2 GB-mes de retención.",
+    "El perfil JWT reutiliza un emisor OIDC existente sin cargo incremental en este ejemplo."
+  ],
+  "exclusions": [
+    "Impuestos, descuentos, créditos y franquicias gratuitas.",
+    "Buckets de logging, transferencias interregionales, transición de clases S3 y otros entornos.",
+    "Costos del proveedor de identidad y logs de la función Lambda controlados por el consumidor."
+  ],
+  "scenarios": [
+    {
+      "name": "Base",
+      "modules": [
+        {
+          "module": "s3",
+          "profile": "default",
+          "usage": {
+            "s3-standard-storage": 140,
+            "s3-write": 10000,
+            "s3-read": 100000
+          }
+        },
+        {
+          "module": "dynamodb",
+          "profile": "on-demand",
+          "usage": {
+            "ddb-storage": 10,
+            "ddb-pitr": 10,
+            "ddb-read": 500000,
+            "ddb-write": 250000
+          }
+        },
+        {
+          "module": "api-gateway",
+          "profile": "iam",
+          "usage": {
+            "http-api-requests": 1000000,
+            "logs-ingest": 1,
+            "logs-storage": 2
+          }
+        }
+      ],
+      "shared_usage": {
+        "lambda-requests": 1000000,
+        "lambda-x86-gb-seconds": 12500,
+        "kms-keys": 2,
+        "kms-requests": 10000,
+        "internet-egress": 20
+      }
+    },
+    {
+      "name": "Retención S3",
+      "modules": [
+        {
+          "module": "s3",
+          "profile": "retention",
+          "usage": {
+            "s3-standard-storage": 100,
+            "s3-write": 10000,
+            "s3-read": 100000
+          }
+        },
+        {
+          "module": "dynamodb",
+          "profile": "on-demand",
+          "usage": {
+            "ddb-storage": 10,
+            "ddb-pitr": 10,
+            "ddb-read": 500000,
+            "ddb-write": 250000
+          }
+        },
+        {
+          "module": "api-gateway",
+          "profile": "iam",
+          "usage": {
+            "http-api-requests": 1000000,
+            "logs-ingest": 1,
+            "logs-storage": 2
+          }
+        }
+      ],
+      "shared_usage": {
+        "lambda-requests": 1000000,
+        "lambda-x86-gb-seconds": 12500,
+        "kms-keys": 2,
+        "kms-requests": 10000,
+        "internet-egress": 20
+      }
+    },
+    {
+      "name": "DynamoDB aprovisionado",
+      "modules": [
+        {
+          "module": "s3",
+          "profile": "default",
+          "usage": {
+            "s3-standard-storage": 140,
+            "s3-write": 10000,
+            "s3-read": 100000
+          }
+        },
+        {
+          "module": "dynamodb",
+          "profile": "provisioned",
+          "usage": {
+            "ddb-storage": 10,
+            "ddb-pitr": 10,
+            "ddb-rcu-hours": 3650,
+            "ddb-wcu-hours": 3650
+          }
+        },
+        {
+          "module": "api-gateway",
+          "profile": "iam",
+          "usage": {
+            "http-api-requests": 1000000,
+            "logs-ingest": 1,
+            "logs-storage": 2
+          }
+        }
+      ],
+      "shared_usage": {
+        "lambda-requests": 1000000,
+        "lambda-x86-gb-seconds": 12500,
+        "kms-keys": 2,
+        "kms-requests": 10000,
+        "internet-egress": 20
+      }
+    },
+    {
+      "name": "API con JWT",
+      "modules": [
+        {
+          "module": "s3",
+          "profile": "default",
+          "usage": {
+            "s3-standard-storage": 140,
+            "s3-write": 10000,
+            "s3-read": 100000
+          }
+        },
+        {
+          "module": "dynamodb",
+          "profile": "on-demand",
+          "usage": {
+            "ddb-storage": 10,
+            "ddb-pitr": 10,
+            "ddb-read": 500000,
+            "ddb-write": 250000
+          }
+        },
+        {
+          "module": "api-gateway",
+          "profile": "jwt",
+          "usage": {
+            "http-api-requests": 1000000,
+            "logs-ingest": 1,
+            "logs-storage": 2
+          }
+        }
+      ],
+      "shared_usage": {
+        "lambda-requests": 1000000,
+        "lambda-x86-gb-seconds": 12500,
+        "kms-keys": 2,
+        "kms-requests": 10000,
+        "internet-egress": 20
+      }
+    }
+  ]
+}

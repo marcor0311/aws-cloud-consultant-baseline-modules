@@ -1,0 +1,55 @@
+Diagram:
+  DefinitionFiles:
+    - Type: URL
+      Url: https://raw.githubusercontent.com/awslabs/diagram-as-code/v0.24/definitions/definition-for-aws-icons-light.yaml
+  Resources:
+    Canvas:
+      Type: AWS::Diagram::Canvas
+      Children: [Cloud]
+    Cloud:
+      Type: AWS::Diagram::Cloud
+      Preset: AWSCloudNoLogo
+      Direction: vertical
+      Children: [ClusterRow, Network]
+    ClusterRow:
+      Type: AWS::Diagram::HorizontalStack
+      Children: [Keys, ControlPlane, Logs]
+    ControlPlane:
+      Type: AWS::EKS
+      Title: EKS con API privada
+    Keys:
+      Type: AWS::KMS
+      Title: Claves KMS existentes
+    Logs:
+      Type: AWS::CloudWatch
+      Title: Logs del plano de control
+    Network:
+      Type: AWS::EC2::VPC
+      Title: VPC y subredes privadas existentes
+      Children: [ManagedNodes]
+    ManagedNodes:
+      Type: AWS::Diagram::HorizontalStack
+      Children: [Nodes, RootVolumes]
+    Nodes:
+      Type: AWS::EC2::Instance
+      Title: Nodos EC2 administrados
+    RootVolumes:
+      Type: AWS::EC2::Volume
+      Title: Discos raíz gp3 cifrados
+  Links:
+    - Source: ControlPlane
+      SourcePosition: W
+      Target: Keys
+      TargetPosition: E
+    - Source: ControlPlane
+      SourcePosition: E
+      Target: Logs
+      TargetPosition: W
+    - Source: ControlPlane
+      SourcePosition: S
+      Target: Network
+      TargetPosition: N
+    - Source: Nodes
+      SourcePosition: E
+      Target: RootVolumes
+      TargetPosition: W

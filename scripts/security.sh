@@ -9,8 +9,9 @@ if ! command -v "$scanner" >/dev/null 2>&1; then
   exit 1
 fi
 scanner="$(command -v "$scanner")"
-for module in "$repo_root"/aws/*; do
-  [[ -d "$module" ]] || continue
+modules="$(scripts/validate.sh --list)"
+while IFS= read -r module_name; do
+  module="$repo_root/aws/$module_name"
   example_count=0
   for example in "$module"/examples/*; do
     [[ -d "$example" ]] || continue
@@ -30,4 +31,4 @@ for module in "$repo_root"/aws/*; do
     echo "El módulo $module necesita al menos un ejemplo para el análisis de seguridad." >&2
     exit 1
   fi
-done
+done <<< "$modules"

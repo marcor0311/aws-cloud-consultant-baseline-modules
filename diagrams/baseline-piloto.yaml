@@ -1,0 +1,61 @@
+Diagram:
+  DefinitionFiles:
+    - Type: URL
+      Url: https://raw.githubusercontent.com/awslabs/diagram-as-code/v0.24/definitions/definition-for-aws-icons-light.yaml
+  Resources:
+    Canvas:
+      Type: AWS::Diagram::Canvas
+      Children: [Region]
+    Region:
+      Type: AWS::Diagram::Cloud
+      Preset: AWSCloudNoLogo
+      Direction: vertical
+      Children: [Modules, Dependencies]
+    Modules:
+      Type: AWS::Diagram::HorizontalStack
+      Children: [Bucket, Table, Api]
+    Bucket:
+      Type: AWS::S3::Bucket
+      Title: S3 privado
+    Table:
+      Type: AWS::DynamoDB::Table
+      Title: DynamoDB con PITR
+    Api:
+      Type: AWS::Diagram::HorizontalStack
+      Children: [Logs, HttpApi]
+    HttpApi:
+      Type: AWS::ApiGatewayV2::Api
+      Title: HTTP API autenticada
+    Logs:
+      Type: AWS::CloudWatch
+      Title: Logs de acceso
+    Dependencies:
+      Type: AWS::Diagram::HorizontalStack
+      Children: [Keys, Function]
+    Keys:
+      Type: AWS::KMS
+      Title: Claves KMS del consumidor
+    Function:
+      Type: AWS::Lambda::Function
+      Title: Función del consumidor
+  Links:
+    - Source: Bucket
+      SourcePosition: S
+      Target: Keys
+      TargetPosition: NW
+    - Source: Table
+      SourcePosition: S
+      Target: Keys
+      TargetPosition: N
+    - Source: Logs
+      SourcePosition: S
+      Target: Keys
+      TargetPosition: NE
+    - Source: HttpApi
+      SourcePosition: W
+      Target: Logs
+      TargetPosition: E
+    - Source: HttpApi
+      SourcePosition: S
+      Target: Function
+      TargetPosition: N

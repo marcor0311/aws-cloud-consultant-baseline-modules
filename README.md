@@ -9,8 +9,11 @@ El arquitecto selecciona los módulos para su diseño y el ingeniero los integra
 | [S3](aws/s3/README.md) | Almacenamiento privado de archivos. |
 | [DynamoDB](aws/dynamodb/README.md) | Base de datos NoSQL con capacidad configurable. |
 | [API Gateway](aws/api-gateway/README.md) | APIs HTTP conectadas a funciones Lambda. |
+| [EKS](aws/eks/README.md) | Kubernetes privado con nodos EC2 administrados. |
+| [CloudFront](aws/cloudfront/README.md) | CDN HTTPS con origen S3 privado. |
 
 Incluye ejemplos y pruebas automatizadas. La aprobación para producción está pendiente.
 
-[Guía de uso y validación](docs/uso.md)  
-[Instrucciones para el agente](AGENTS.md)
+- [Agente de Codex y catálogo para el arquitecto](docs/agente/README.md)
+- [Guía de uso y validación](docs/uso.md)
+- [Instrucciones para el agente](AGENTS.md)

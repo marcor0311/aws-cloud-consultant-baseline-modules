@@ -1,0 +1,38 @@
+{
+  "region": "us-east-1",
+  "currency": "USD",
+  "assumptions": [
+    "100 GB salientes y un millón de peticiones HTTPS en Estados Unidos. us-east-1 es la región del origen en el ejemplo."
+  ],
+  "exclusions": [
+    "Franquicias, descuentos e impuestos."
+  ],
+  "scenarios": [
+    {
+      "name": "regional",
+      "modules": [
+        {
+          "module": "cloudfront",
+          "profile": "regional",
+          "usage": {
+            "cloudfront-us-https": 1000000,
+            "cloudfront-us-egress": 100
+          }
+        }
+      ]
+    },
+    {
+      "name": "global",
+      "modules": [
+        {
+          "module": "cloudfront",
+          "profile": "global",
+          "usage": {
+            "cloudfront-us-https": 1000000,
+            "cloudfront-us-egress": 100
+          }
+        }
+      ]
+    }
+  ]
+}

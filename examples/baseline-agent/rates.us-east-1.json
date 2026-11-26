@@ -1,0 +1,339 @@
+{
+  "region": "us-east-1",
+  "currency": "USD",
+  "quoted_on": "2026-11-26",
+  "rates": {
+    "s3-standard-storage": {
+      "service": "AmazonS3",
+      "sku": "WP9ANXZGBYYSGJEA",
+      "unit": "GB-Mo",
+      "aws_usage_type": "TimedStorage-ByteHrs",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "51200",
+          "price": "0.0230000000"
+        },
+        {
+          "start": "51200",
+          "end": "512000",
+          "price": "0.0220000000"
+        },
+        {
+          "start": "512000",
+          "end": "Inf",
+          "price": "0.0210000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonS3/20261125152611/us-east-1/index.json",
+      "published_on": "2026-11-25T15:26:11Z"
+    },
+    "s3-write": {
+      "service": "AmazonS3",
+      "sku": "E9YHNFENF4XQBZR6",
+      "unit": "Requests",
+      "aws_usage_type": "Requests-Tier1",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0000050000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonS3/20261125152611/us-east-1/index.json",
+      "published_on": "2026-11-25T15:26:11Z"
+    },
+    "s3-read": {
+      "service": "AmazonS3",
+      "sku": "ZWQ6Q48CRJXX4FXE",
+      "unit": "Requests",
+      "aws_usage_type": "Requests-Tier2",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0000004000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonS3/20261125152611/us-east-1/index.json",
+      "published_on": "2026-11-25T15:26:11Z"
+    },
+    "ddb-storage": {
+      "service": "AmazonDynamoDB",
+      "sku": "F3E2EDSYC6ZNW7XP",
+      "exclude_free_allowance": true,
+      "unit": "GB-Mo",
+      "aws_usage_type": "TimedStorage-ByteHrs",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.2500000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonDynamoDB/20261125150209/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:09Z"
+    },
+    "ddb-pitr": {
+      "service": "AmazonDynamoDB",
+      "sku": "TFXQN9PEG62G7A67",
+      "unit": "GB-Mo",
+      "aws_usage_type": "USE1-TimedPITRStorage-ByteHrs",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.2000000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonDynamoDB/20261125150209/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:09Z"
+    },
+    "ddb-read": {
+      "service": "AmazonDynamoDB",
+      "sku": "4W4ZMC46EHE8XTTZ",
+      "unit": "ReadRequestUnits",
+      "aws_usage_type": "ReadRequestUnits",
+      "aws_operation": "PayPerRequestThroughput",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0000001250"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonDynamoDB/20261125150209/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:09Z"
+    },
+    "ddb-write": {
+      "service": "AmazonDynamoDB",
+      "sku": "FGXVD96DKJMUASY3",
+      "unit": "WriteRequestUnits",
+      "aws_usage_type": "WriteRequestUnits",
+      "aws_operation": "PayPerRequestThroughput",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0000006250"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonDynamoDB/20261125150209/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:09Z"
+    },
+    "ddb-rcu-hours": {
+      "service": "AmazonDynamoDB",
+      "sku": "4V475Q49DCKGXQZ2",
+      "exclude_free_allowance": true,
+      "unit": "ReadCapacityUnit-Hrs",
+      "aws_usage_type": "ReadCapacityUnit-Hrs",
+      "aws_operation": "CommittedThroughput",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0001300000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonDynamoDB/20261125150209/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:09Z"
+    },
+    "ddb-wcu-hours": {
+      "service": "AmazonDynamoDB",
+      "sku": "R6PXMNYCEDGZ2EYN",
+      "exclude_free_allowance": true,
+      "unit": "WriteCapacityUnit-Hrs",
+      "aws_usage_type": "WriteCapacityUnit-Hrs",
+      "aws_operation": "CommittedThroughput",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0006500000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonDynamoDB/20261125150209/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:09Z"
+    },
+    "http-api-requests": {
+      "service": "AmazonApiGateway",
+      "sku": "FC2TWT2UEPTBKVBX",
+      "unit": "Requests",
+      "aws_usage_type": "USE1-ApiGatewayHttpRequest",
+      "aws_operation": "ApiGatewayHttpApi",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "300000000",
+          "price": "0.0000010000"
+        },
+        {
+          "start": "300000000",
+          "end": "Inf",
+          "price": "0.0000009000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonApiGateway/20261123174559/us-east-1/index.json",
+      "published_on": "2026-11-23T17:45:59Z"
+    },
+    "logs-ingest": {
+      "service": "AmazonCloudWatch",
+      "sku": "S8QGXX5R2BKKMDSJ",
+      "unit": "GB",
+      "aws_usage_type": "USE1-DataProcessing-Bytes",
+      "aws_operation": "PutLogEvents",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.5000000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonCloudWatch/20261125150240/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:40Z"
+    },
+    "logs-storage": {
+      "service": "AmazonCloudWatch",
+      "sku": "6K9ADYQAHV5KX9KZ",
+      "unit": "GB-Mo",
+      "aws_usage_type": "USE1-TimedStorage-ByteHrs",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0300000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonCloudWatch/20261125150240/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:40Z"
+    },
+    "lambda-requests": {
+      "service": "AWSLambda",
+      "sku": "GU2ZS9HVP6QTQ7KE",
+      "unit": "Requests",
+      "aws_usage_type": "Request",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0000002000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AWSLambda/20261125205755/us-east-1/index.json",
+      "published_on": "2026-11-25T20:57:55Z"
+    },
+    "lambda-x86-gb-seconds": {
+      "service": "AWSLambda",
+      "sku": "TG3M4CAGBA3NYQBH",
+      "unit": "Lambda-GB-Second",
+      "aws_usage_type": "Lambda-GB-Second",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "6000000000",
+          "price": "0.0000166667"
+        },
+        {
+          "start": "6000000000",
+          "end": "15000000000",
+          "price": "0.0000150000"
+        },
+        {
+          "start": "15000000000",
+          "end": "Inf",
+          "price": "0.0000133334"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AWSLambda/20261125205755/us-east-1/index.json",
+      "published_on": "2026-11-25T20:57:55Z"
+    },
+    "kms-keys": {
+      "service": "awskms",
+      "sku": "U553K98XGDXCYHWS",
+      "unit": "Keys",
+      "aws_usage_type": "us-east-1-KMS-Keys",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "1.0000000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/awskms/20261125150214/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:14Z"
+    },
+    "kms-requests": {
+      "service": "awskms",
+      "sku": "MFEBZPX8NHM5FY7Z",
+      "unit": "Requests",
+      "aws_usage_type": "us-east-1-KMS-Requests",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0000030000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/awskms/20261125150214/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:14Z"
+    },
+    "internet-egress": {
+      "service": "AWSDataTransfer",
+      "sku": "HQEH3ZWJVT46JHRG",
+      "unit": "GB",
+      "aws_usage_type": "DataTransfer-Out-Bytes",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "10240",
+          "price": "0.0900000000"
+        },
+        {
+          "start": "10240",
+          "end": "51200",
+          "price": "0.0850000000"
+        },
+        {
+          "start": "51200",
+          "end": "153600",
+          "price": "0.0700000000"
+        },
+        {
+          "start": "153600",
+          "end": "Inf",
+          "price": "0.0500000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AWSDataTransfer/20261119105841/us-east-1/index.json",
+      "published_on": "2026-11-19T10:58:41Z"
+    }
+  }
+}

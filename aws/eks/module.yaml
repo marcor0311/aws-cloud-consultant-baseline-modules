@@ -1,0 +1,29 @@
+schema_version: 1
+module_id: eks
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Kubernetes administrado con endpoint privado y nodos EC2 en múltiples zonas.
+  required_inputs: [name, kubernetes_version, vpc_id, private_subnet_ids, iam_role_arns, kms_key_arns, tags]
+  dependencies: [VPC con DNS y salida controlada, Subredes privadas en dos o más zonas, Roles IAM del clúster nodos y administrador, Claves KMS para Kubernetes y logs]
+  controls: [API privada, Acceso IAM explícito, Protección contra eliminación, Cifrado KMS y logs de control plane, IMDSv2 y discos gp3 cifrados]
+  limits: [Un grupo administrado On-Demand x86-64, Sin autoscaler ni ingress, Conectividad y complementos a cargo del consumidor]
+  diagram: diagrams/baseline-eks.yaml
+profiles:
+  - name: standard
+    example: examples/standard/
+    fit: Dos nodos m6i.large con discos raíz gp3 de 40 GiB cada uno.
+    pricing:
+      meters: [eks-standard-hours, eks-m6i-large-hours, eks-gp3-storage, eks-logs-ingest, eks-logs-storage]
+      shared: [kms-keys, kms-requests, eks-incremental-network]
+  - name: scaled
+    example: examples/scaled/
+    fit: Tres nodos m6i.large con discos raíz gp3 de 40 GiB cada uno y capacidad hasta seis.
+    pricing:
+      meters: [eks-standard-hours, eks-m6i-large-hours, eks-gp3-storage, eks-logs-ingest, eks-logs-storage]
+      shared: [kms-keys, kms-requests, eks-incremental-network]

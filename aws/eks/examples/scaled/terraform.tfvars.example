@@ -1,0 +1,23 @@
+aws_region          = "us-east-1"
+name                = "consulting-eks-example"
+kubernetes_version = "1.36"
+vpc_id              = "vpc-0123456789abcdef0"
+private_subnet_ids  = ["subnet-0123456789abcdef0", "subnet-0123456789abcdef1"]
+
+iam_role_arns = {
+  cluster       = "arn:aws:iam::123456789012:role/example-eks-control-plane"
+  nodes         = "arn:aws:iam::123456789012:role/example-eks-nodes"
+  administrator = "arn:aws:iam::123456789012:role/example-eks-administrator"
+}
+
+kms_key_arns = {
+  secrets = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
+  logs    = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789013"
+}
+
+tags = {
+  Project     = "consulting-example"
+  Environment = "dev"
+  Owner       = "platform"
+  CostCenter  = "engineering"
+}

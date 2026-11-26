@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/scripts/verify_baselines_hook.py\"",
+            "timeout": 1200,
+            "statusMessage": "Verificando módulos AWS"
+          }
+        ]
+      }
+    ]
+  }
+}

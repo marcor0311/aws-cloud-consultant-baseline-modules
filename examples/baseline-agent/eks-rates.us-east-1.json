@@ -1,0 +1,126 @@
+{
+  "region": "us-east-1",
+  "currency": "USD",
+  "quoted_on": "2026-11-26",
+  "rates": {
+    "eks-standard-hours": {
+      "service": "AmazonEKS",
+      "sku": "ZYWMR684YSMFHWEU",
+      "unit": "Hours",
+      "aws_usage_type": "USE1-AmazonEKS-Hours:perCluster",
+      "aws_operation": "CreateOperation",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.1000000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEKS/20261111153557/us-east-1/index.json",
+      "published_on": "2026-11-11T15:35:57Z"
+    },
+    "eks-m6i-large-hours": {
+      "service": "AmazonEC2",
+      "sku": "B8JJ44GS8MG4RPR4",
+      "unit": "Hrs",
+      "aws_usage_type": "BoxUsage:m6i.large",
+      "aws_operation": "RunInstances",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0960000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/20261124231417/us-east-1/index.json",
+      "published_on": "2026-11-24T23:14:17Z"
+    },
+    "eks-gp3-storage": {
+      "service": "AmazonEC2",
+      "sku": "JG3KUJMBRGHV3N8G",
+      "unit": "GB-Mo",
+      "aws_usage_type": "EBS:VolumeUsage.gp3",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0800000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/20261124231417/us-east-1/index.json",
+      "published_on": "2026-11-24T23:14:17Z"
+    },
+    "eks-logs-ingest": {
+      "service": "AmazonCloudWatch",
+      "sku": "S8QGXX5R2BKKMDSJ",
+      "unit": "GB",
+      "aws_usage_type": "USE1-DataProcessing-Bytes",
+      "aws_operation": "PutLogEvents",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.5000000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonCloudWatch/20261125150240/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:40Z"
+    },
+    "eks-logs-storage": {
+      "service": "AmazonCloudWatch",
+      "sku": "6K9ADYQAHV5KX9KZ",
+      "unit": "GB-Mo",
+      "aws_usage_type": "USE1-TimedStorage-ByteHrs",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0300000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonCloudWatch/20261125150240/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:40Z"
+    },
+    "kms-keys": {
+      "service": "awskms",
+      "sku": "U553K98XGDXCYHWS",
+      "unit": "Keys",
+      "aws_usage_type": "us-east-1-KMS-Keys",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "1.0000000000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/awskms/20261125150214/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:14Z"
+    },
+    "kms-requests": {
+      "service": "awskms",
+      "sku": "MFEBZPX8NHM5FY7Z",
+      "unit": "Requests",
+      "aws_usage_type": "us-east-1-KMS-Requests",
+      "aws_operation": "",
+      "effective_on": "2026-11-01T00:00:00Z",
+      "tiers": [
+        {
+          "start": "0",
+          "end": "Inf",
+          "price": "0.0000030000"
+        }
+      ],
+      "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/awskms/20261125150214/us-east-1/index.json",
+      "published_on": "2026-11-25T15:02:14Z"
+    }
+  }
+}

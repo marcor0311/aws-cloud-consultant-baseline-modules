@@ -1,0 +1,28 @@
+schema_version: 1
+module_id: cloudfront
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Distribución de contenido estático por HTTPS desde S3 privado.
+  required_inputs: [origin_domain_name, origin_bucket_arn, web_acl_arn, logging_bucket_domain, tags]
+  dependencies: [Bucket S3 privado, WAFv2 de ámbito CLOUDFRONT, Bucket de logs compatible con la entrega legacy]
+  controls: [OAC SigV4, Redirección a HTTPS, GET y HEAD, WAF y logs sin cookies]
+  limits: [Certificado del dominio CloudFront, Política S3 administrada por el consumidor]
+profiles:
+  - name: regional
+    example: examples/regional/
+    fit: Cobertura PriceClass_100.
+    pricing:
+      meters: [cloudfront-us-https, cloudfront-us-egress, cloudfront-other-geographies]
+      shared: [cloudfront-other-costs]
+  - name: global
+    example: examples/global/
+    fit: Cobertura PriceClass_All.
+    pricing:
+      meters: [cloudfront-us-https, cloudfront-us-egress, cloudfront-other-geographies]
+      shared: [cloudfront-other-costs]

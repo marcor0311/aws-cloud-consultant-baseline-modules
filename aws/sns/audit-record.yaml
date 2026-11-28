@@ -1,0 +1,29 @@
+schema_version: 1
+module_id: sns
+implementation_review: pending
+production_approval: pending
+aws_integration_validation: not_run
+implementation_agent: implementation_a
+last_local_validation:
+  date: '2026-11-28'
+  terraform: 1.14.8
+  aws_provider: 6.71.0
+  format: passed
+  validate: passed
+  mocked_tests_passed: 4
+  example_configurations_validated: 1
+  trivy: 0.76.1
+  high_or_critical_findings: 0
+validation_evidence:
+  test_definitions: tests/baseline.tftest.hcl
+  local_report: ../../reports/sns.tests.log
+  ci_workflow: ../../.github/workflows/validate.yml
+  emulator:
+    version: 1.0.385
+    status: passed
+    scope: Aprovisionamiento, comprobación funcional y destrucción de cada perfil en AWS Emulator.
+integration_evidence:
+  terraform_mcp: Documentación de recursos del proveedor AWS 6.71.0 contrastada con el esquema local.
+  aws_mcp: Documentación oficial del servicio consultada durante el diseño.
+  pricing: Precios de lista públicos en us-east-1; contraste con AWS Pricing MCP pendiente.
+emulator_notes: AWS Emulator 1.0.385 evalúa aws:SecureTransport como falso en SNS aunque la llamada use HTTPS. La prueba verifica la denegación en la política, la retira solo dentro del emulador para probar la entrega y la restaura.

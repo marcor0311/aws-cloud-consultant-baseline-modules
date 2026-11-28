@@ -1,0 +1,4 @@
+aws_region            = "us-east-1"
+bus_name              = "poc-domain"
+orders_queue_arn      = "arn:aws:sqs:us-east-1:123456789012:poc-orders"
+dead_letter_queue_arn = "arn:aws:sqs:us-east-1:123456789012:poc-events-dlq"

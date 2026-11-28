@@ -1,0 +1,22 @@
+schema_version: 1
+module_id: ecr
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Repositorio privado de imágenes de contenedor con etiquetas inmutables, escaneo y expiración.
+  required_inputs: [name]
+  dependencies: [Clave KMS regional si se exige cifrado gestionado por el cliente]
+  controls: [Etiquetas inmutables, Escaneo al publicar, Cifrado en reposo, Acceso externo solo de lectura]
+  limits: [Sin replicación entre regiones, Sin caché de registros públicos]
+profiles:
+  - name: private
+    example: examples/private/
+    fit: Imágenes de servicios ECS Fargate, EKS o Lambda con contenedores.
+    pricing:
+      meters: [ecr-storage]
+      shared: []

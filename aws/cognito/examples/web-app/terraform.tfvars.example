@@ -1,0 +1,3 @@
+aws_region    = "us-east-1"
+name          = "poc-users"
+callback_urls = ["https://app.example.com/callback", "http://localhost:3000/callback"]

@@ -1,0 +1,5 @@
+aws_region        = "us-east-1"
+name              = "poc-web"
+vpc_id            = "vpc-0123456789abcdef0"
+public_subnet_ids = ["subnet-0123456789abcdef0", "subnet-0fedcba9876543210"]
+certificate_arn   = "arn:aws:acm:us-east-1:123456789012:certificate/11111111-2222-3333-4444-555555555555"

@@ -1,0 +1,7 @@
+aws_region            = "us-east-1"
+name                  = "poc-api"
+image                 = "123456789012.dkr.ecr.us-east-1.amazonaws.com/poc/api:1.0.0"
+vpc_id                = "vpc-0123456789abcdef0"
+private_subnet_ids    = ["subnet-0123456789abcdef0", "subnet-0fedcba9876543210"]
+alb_security_group_id = "sg-0123456789abcdef0"
+target_group_arn      = "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/poc-web-tg/1234567890abcdef"

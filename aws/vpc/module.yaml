@@ -1,0 +1,28 @@
+schema_version: 1
+module_id: vpc
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Red base con subredes privadas por zona, salida opcional por NAT, endpoints de S3 y DynamoDB y Flow Logs.
+  required_inputs: [name, availability_zones]
+  dependencies: []
+  controls: [Grupo de seguridad por defecto sin reglas, Subredes públicas sin IP automática, Flow Logs de todo el tráfico, Endpoints de puerta de enlace para S3 y DynamoDB]
+  limits: [Sin IPv6, Sin endpoints de interfaz, Sin Transit Gateway ni peering]
+profiles:
+  - name: private
+    example: examples/private/
+    fit: Aplicaciones con balanceador público y cómputo privado con salida a Internet. Base para ALB, ECS, EKS y RDS.
+    pricing:
+      meters: [nat-gateway-hours, nat-gateway-data, public-ipv4-hours, cloudwatch-logs-ingestion]
+      shared: []
+  - name: isolated
+    example: examples/isolated/
+    fit: Cargas sin salida a Internet, como datos o procesamiento interno.
+    pricing:
+      meters: [cloudwatch-logs-ingestion]
+      shared: []

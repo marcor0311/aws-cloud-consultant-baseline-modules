@@ -1,0 +1,7 @@
+aws_region  = "us-east-1"
+name        = "poc-orders"
+kms_key_arn = "arn:aws:kms:us-east-1:123456789012:key/11111111-2222-3333-4444-555555555555"
+queue_arns  = {
+  billing  = "arn:aws:sqs:us-east-1:123456789012:poc-billing"
+  shipping = "arn:aws:sqs:us-east-1:123456789012:poc-shipping"
+}

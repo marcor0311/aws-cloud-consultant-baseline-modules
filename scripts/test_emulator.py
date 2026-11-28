@@ -29,7 +29,10 @@ VERSION = "1.0.385"
 IMAGE = f"baseline-poc-aws-emulator:{VERSION}"
 REGION = "us-east-1"
 ACCOUNT = "000000000000"
-SERVICES = ("apigateway", "apigatewayv2", "cloudfront", "cloudwatchlogs", "dynamodb", "eks", "iam", "kms", "lambda", "s3", "sqs", "sts")
+SERVICES = (
+    "acm", "apigateway", "apigatewayv2", "cloudfront", "cloudwatchlogs", "cognitoidp", "dynamodb", "ec2", "ecr", "ecs", "eks", "elbv2", "events",
+    "iam", "kms", "lambda", "rds", "s3", "secretsmanager", "sfn", "sns", "sqs", "sts",
+)
 ENDPOINT = re.compile(r"^https://127\.0\.0\.1:[0-9]+$")
 MODULE_PROFILE = re.compile(r"^[a-z][a-z0-9-]+/[a-z][a-z0-9-]+$")
 CONSUMER_EXAMPLE = re.compile(r"^example:examples/[a-z][a-z0-9-]+$")

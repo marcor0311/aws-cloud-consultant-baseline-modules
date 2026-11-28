@@ -1,0 +1,22 @@
+schema_version: 1
+module_id: sns
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Tópico SNS Standard cifrado con publicadores acotados y suscripciones SQS para fan-out.
+  required_inputs: [name, kms_key_arn]
+  dependencies: [Colas SQS con política para el tópico, Clave KMS del cliente]
+  controls: [Cifrado en reposo, Publicación solo por TLS, Servicios publicadores limitados por ARN de origen, Acceso restringido a la cuenta propietaria]
+  limits: [Sin FIFO, Sin suscripciones HTTP, correo ni SMS, Sin filtros de mensajes]
+profiles:
+  - name: fan-out
+    example: examples/fan-out/
+    fit: Un evento de negocio que varias colas o servicios consumen de forma independiente.
+    pricing:
+      meters: [sns-requests, sns-sqs-deliveries]
+      shared: [kms-keys, kms-requests]

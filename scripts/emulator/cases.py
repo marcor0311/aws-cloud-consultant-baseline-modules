@@ -24,6 +24,9 @@ PROFILES = {
     "s3/default", "s3/retention",
     "dynamodb/on-demand", "dynamodb/provisioned",
 }
+from emulator.platform_cases import PLATFORM_PROFILES  # noqa: E402
+
+PROFILES |= PLATFORM_PROFILES
 
 
 def require(condition, message):
@@ -124,6 +127,10 @@ def prepare_lambda(profile, directory, emulator):
 
 
 def prepare_profile(module, profile, directory, emulator):
+    if f"{module}/{profile}" in PLATFORM_PROFILES:
+        from emulator.platform_cases import prepare_platform
+
+        return {"aws_region": REGION, **prepare_platform(module, profile, directory, emulator)}
     if module in {"kms", "sqs", "iam"}:
         from emulator.queue_cases import prepare_queue_case
 
@@ -204,6 +211,10 @@ def check_dynamodb(emulator, variables):
 
 
 def check_functional(module, profile, emulator, variables, outputs):
+    if f"{module}/{profile}" in PLATFORM_PROFILES:
+        from emulator.platform_cases import check_platform
+
+        return check_platform(module, profile, emulator, variables, outputs)
     if module in {"kms", "sqs", "iam"}:
         from emulator.queue_cases import check_queue_case
 

@@ -3,11 +3,26 @@
     "baseline-terraform": {
       "type": "stdio",
       "command": "./.tools/terraform-mcp-server",
-      "args": ["stdio", "--toolsets", "registry"]
+      "args": [
+        "stdio",
+        "--toolsets",
+        "registry"
+      ]
     },
     "baseline-aws-knowledge": {
       "type": "http",
       "url": "https://aws-mcp.us-east-1.api.aws/mcp"
+    },
+    "baseline-aws-pricing": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "awslabs.aws-pricing-mcp-server"
+      ],
+      "env": {
+        "AWS_PROFILE": "${AWS_PROFILE:-default}",
+        "AWS_REGION": "${AWS_REGION:-us-east-1}"
+      }
     }
   }
 }

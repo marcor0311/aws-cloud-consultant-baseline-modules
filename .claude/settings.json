@@ -3,7 +3,8 @@
   "effortLevel": "low",
   "enabledMcpjsonServers": [
     "baseline-terraform",
-    "baseline-aws-knowledge"
+    "baseline-aws-knowledge",
+    "baseline-aws-pricing"
   ],
   "permissions": {
     "deny": [

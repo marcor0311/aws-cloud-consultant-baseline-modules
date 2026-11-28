@@ -27,7 +27,7 @@ url = "https://aws-mcp.us-east-1.api.aws/mcp"
 enabled_tools = ["aws___search_documentation", "aws___read_documentation", "aws___list_regions", "aws___get_regional_availability", "aws___retrieve_skill"]
 
 [mcp_servers.baseline-aws-pricing]
-enabled = false
+enabled = true
 command = "uvx"
 args = ["awslabs.aws-pricing-mcp-server"]
 env_vars = ["AWS_PROFILE", "AWS_REGION", "AWS_CONFIG_FILE", "AWS_SHARED_CREDENTIALS_FILE"]

@@ -11,4 +11,4 @@ Trabaja desde la selección del arquitecto y una rama autorizada. Completa la [p
 - **Cambio.** Ajusta los perfiles y los ejemplos existentes. Revisa defaults, nombres de recursos Terraform, recursos reemplazables y migraciones. Compara costos bajo los mismos supuestos y actualiza el contrato de consumo.
 - **Retiro.** Documenta motivo, sustituto y migración, revisa consumidores de referencias móviles y conserva las referencias históricas de Git. Retira el módulo del inventario activo junto con sus referencias de CI cuando corresponda. Una eliminación del módulo del catálogo no ejecuta `terraform destroy`.
 
-Entrega el resultado a `$review-baseline-change` con la especificación, la selección, el impacto y las limitaciones.
+Valida los perfiles afectados con `$validate-baseline-emulator` y entrega el resultado a `$review-baseline-change` con la especificación, la selección, el impacto y las limitaciones.

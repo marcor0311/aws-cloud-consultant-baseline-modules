@@ -43,15 +43,16 @@ El agente funciona igual desde Claude Code con la configuración del repo:
 | --- | --- | --- |
 | Instrucciones | `AGENTS.md` | `CLAUDE.md`, que importa `AGENTS.md` |
 | Skills | `.agents/skills/` (`$nombre`) | `.claude/skills/`, enlace a la misma carpeta (`/nombre`) |
-| MCP | `.codex/config.toml` | `.mcp.json` (Terraform MCP y AWS Knowledge MCP) |
+| MCP | `.codex/config.toml` | `.mcp.json` (Terraform, AWS Knowledge y AWS Pricing) |
 | Hook de verificación | `.codex/hooks.json` | `Stop` en `.claude/settings.json` |
 | Límite de gasto | `multi_agent = false` | `permissions.deny: ["Agent"]` |
 | Esfuerzo | `model_reasoning_effort = "low"` | `effortLevel: "low"` |
 | Modelo | Elección de cada usuario | Elección de cada usuario |
 | AWS Knowledge MCP | `enabled_tools` con 5 herramientas de conocimiento | `deny` de `run_script`, `get_presigned_url` y `get_tasks` |
+| AWS Emulator | `$validate-baseline-emulator` y Docker | `/validate-baseline-emulator` y Docker |
 | Búsqueda web | `web_search = "disabled"` | `permissions.deny: ["WebSearch", "WebFetch"]` |
 
 1. Instala Terraform MCP en `.tools/` como se indica arriba; ambos agentes usan el mismo binario.
 2. Abre el repo en Claude Code y aprueba los servidores de `.mcp.json` cuando lo solicite.
 3. Para las capacidades autenticadas de AWS, instala Agent Toolkit for AWS: `/plugin install aws-core@claude-plugins-official` y luego `/reload-plugins`.
-4. Para GitHub usa `gh` autenticado. Los servidores opcionales (Pricing, DevOps y Security) se agregan a `.mcp.json` con los mismos comandos de `.codex/config.toml` cuando sus prerrequisitos estén listos.
+4. Para GitHub usa `gh` autenticado. Los servidores opcionales (DevOps y Security) se agregan a `.mcp.json` con los mismos comandos de `.codex/config.toml` cuando sus prerrequisitos estén listos.

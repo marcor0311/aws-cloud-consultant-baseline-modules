@@ -1,0 +1,28 @@
+schema_version: 1
+module_id: rds-postgres
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Base de datos PostgreSQL administrada en subredes privadas con credenciales en Secrets Manager.
+  required_inputs: [identifier, vpc_id, subnet_ids]
+  dependencies: [VPC con subredes privadas en dos zonas, Grupos de seguridad de los clientes]
+  controls: [Cifrado en reposo, TLS obligatorio, Sin acceso público, Contraseña maestra gestionada y rotada por RDS, Autenticación IAM, Copias de siete días, Protección contra borrado, Copia final]
+  limits: [Sin réplicas de lectura, Sin Aurora, Sin proxy RDS]
+profiles:
+  - name: single-az
+    example: examples/single-az/
+    fit: Desarrollo, pruebas y cargas pequeñas que toleran minutos de indisponibilidad.
+    pricing:
+      meters: [rds-postgres-db.t4g.micro-single-az, rds-gp3-storage-single-az, rds-backup-storage]
+      shared: []
+  - name: multi-az
+    example: examples/multi-az/
+    fit: Producción con conmutación automática a otra zona.
+    pricing:
+      meters: [rds-postgres-db.m7g.large-multi-az, rds-gp3-storage-multi-az, rds-backup-storage]
+      shared: []

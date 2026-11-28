@@ -4,7 +4,7 @@ import json
 
 TAGS = {"Project": "baseline-poc", "Environment": "test"}
 ZONES = ["us-east-1a", "us-east-1b"]
-PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private", "ecs-fargate/web-service"}
+PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private", "ecs-fargate/web-service", "rds-postgres/single-az", "rds-postgres/multi-az"}
 
 
 def require(condition, message):
@@ -50,6 +50,11 @@ def prepare_platform(module, profile, directory, emulator):
         return {"name": "probe-api", "image": "public.ecr.aws/docker/library/nginx:1.27", "vpc_id": vpc,
                 "private_subnet_ids": subnets, "security_group_ids": [security_group(emulator, vpc, "probe-api-tasks")],
                 "tags": TAGS}
+    if module == "rds-postgres":
+        vpc, subnets = network(emulator, public=False)
+        return {"identifier": f"probe-{profile}", "vpc_id": vpc, "private_subnet_ids": subnets,
+                "security_group_ids": [security_group(emulator, vpc, f"probe-{profile}-db")],
+                "deletion_protection": False, "skip_final_snapshot": True, "tags": TAGS}
     raise RuntimeError(f"Caso sin preparación: {module}/{profile}")
 
 
@@ -119,7 +124,24 @@ def check_ecs(emulator, variables, outputs):
     return {"service": outputs["service_name"], "network": "private", "circuit_breaker": "passed", "task_definition": "passed"}
 
 
+def check_rds(profile, emulator, variables, outputs):
+    rds = emulator.client("rds")
+    instance = rds.describe_db_instances(DBInstanceIdentifier=variables["identifier"])["DBInstances"][0]
+    require(instance["Engine"] == "postgres" and instance["StorageEncrypted"], "Instancia sin cifrado o de otro motor.")
+    require(not instance["PubliclyAccessible"] and instance["MultiAZ"] == (profile == "multi-az"), "Exposición o zonas incorrectas.")
+    require(instance["Endpoint"]["Address"] == outputs["endpoint"], "Endpoint distinto del publicado.")
+    group = instance["DBParameterGroups"][0]["DBParameterGroupName"]
+    parameters = {item["ParameterName"]: item.get("ParameterValue")
+                  for item in rds.describe_db_parameters(DBParameterGroupName=group, Source="user")["Parameters"]}
+    require(parameters.get("rds.force_ssl") == "1", "El grupo de parámetros no exige TLS.")
+    secret = emulator.client("secretsmanager").describe_secret(SecretId=outputs["master_user_secret_arn"])
+    require(secret["ARN"] == outputs["master_user_secret_arn"], "No existe el secreto del usuario maestro.")
+    return {"instance": variables["identifier"], "encryption": "passed", "force_ssl": "passed", "master_secret": "passed"}
+
+
 def check_platform(module, profile, emulator, variables, outputs):
+    if module == "rds-postgres":
+        return check_rds(profile, emulator, variables, outputs)
     if module == "ecs-fargate":
         return check_ecs(emulator, variables, outputs)
     if module == "ecr":

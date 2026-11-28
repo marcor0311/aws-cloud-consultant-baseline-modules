@@ -30,7 +30,7 @@ IMAGE = f"baseline-poc-aws-emulator:{VERSION}"
 REGION = "us-east-1"
 ACCOUNT = "000000000000"
 SERVICES = (
-    "acm", "apigateway", "apigatewayv2", "cloudfront", "cloudwatchlogs", "dynamodb", "ec2", "ecr", "ecs", "eks", "elbv2", "events",
+    "acm", "apigateway", "apigatewayv2", "cloudfront", "cloudwatchlogs", "cognitoidp", "dynamodb", "ec2", "ecr", "ecs", "eks", "elbv2", "events",
     "iam", "kms", "lambda", "rds", "s3", "secretsmanager", "sfn", "sns", "sqs", "sts",
 )
 ENDPOINT = re.compile(r"^https://127\.0\.0\.1:[0-9]+$")

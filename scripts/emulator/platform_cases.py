@@ -5,7 +5,7 @@ from time import monotonic, sleep
 
 TAGS = {"Project": "baseline-poc", "Environment": "test"}
 ZONES = ["us-east-1a", "us-east-1b"]
-PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private", "ecs-fargate/web-service", "rds-postgres/single-az", "rds-postgres/multi-az", "sns/fan-out", "eventbridge/custom-bus", "step-functions/standard-workflow"}
+PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private", "ecs-fargate/web-service", "rds-postgres/single-az", "rds-postgres/multi-az", "sns/fan-out", "eventbridge/custom-bus", "step-functions/standard-workflow", "cognito/web-app"}
 
 
 def require(condition, message):
@@ -93,6 +93,9 @@ def prepare_platform(module, profile, directory, emulator):
         return {"bus_name": "probe-domain", "orders_queue_arn": orders, "dead_letter_queue_arn": dead_letter, "tags": TAGS}
     if module == "step-functions":
         return {"name": "probe-order-workflow", "tags": TAGS}
+    if module == "cognito":
+        return {"name": "probe-users", "callback_urls": ["https://app.example.com/callback"],
+                "deletion_protection": False, "tags": TAGS}
     raise RuntimeError(f"Caso sin preparación: {module}/{profile}")
 
 
@@ -252,7 +255,21 @@ def check_step_functions(emulator, variables, outputs):
     return {"state_machine": variables["name"], "accepted_path": "passed", "rejected_path": "passed", "tracing": "passed"}
 
 
+def check_cognito(emulator, variables, outputs):
+    idp = emulator.client("cognito-idp")
+    pool = idp.describe_user_pool(UserPoolId=outputs["user_pool_id"])["UserPool"]
+    require(pool["Policies"]["PasswordPolicy"]["MinimumLength"] == 12, "Política de contraseñas incorrecta.")
+    require(pool["AdminCreateUserConfig"]["AllowAdminCreateUserOnly"], "El registro libre está habilitado.")
+    client = idp.describe_user_pool_client(UserPoolId=outputs["user_pool_id"], ClientId=outputs["client_id"])["UserPoolClient"]
+    require("ClientSecret" not in client and client["AllowedOAuthFlows"] == ["code"], "Cliente web incorrecto.")
+    user = idp.admin_create_user(UserPoolId=outputs["user_pool_id"], Username="probe@example.com", MessageAction="SUPPRESS")["User"]
+    require(user["UserStatus"] == "FORCE_CHANGE_PASSWORD", "El alta por administrador no exige cambiar la contraseña.")
+    return {"user_pool": variables["name"], "password_policy": "passed", "public_client": "passed", "admin_create_user": "passed"}
+
+
 def check_platform(module, profile, emulator, variables, outputs):
+    if module == "cognito":
+        return check_cognito(emulator, variables, outputs)
     if module == "step-functions":
         return check_step_functions(emulator, variables, outputs)
     if module == "eventbridge":

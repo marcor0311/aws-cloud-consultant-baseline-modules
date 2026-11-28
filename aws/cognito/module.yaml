@@ -1,0 +1,22 @@
+schema_version: 1
+module_id: cognito
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Grupo de usuarios de Cognito con cliente web OAuth para autenticar aplicaciones y APIs.
+  required_inputs: [name, callback_urls]
+  dependencies: [Dominio de Cognito o propio para la interfaz alojada, Autorizador JWT en API Gateway]
+  controls: [Contraseñas robustas, MFA por aplicación, Sin registro libre por defecto, Flujo de código sin secreto en el cliente, Sin errores que revelen usuarios, Revocación de tokens, Protección contra borrado]
+  limits: [Sin proveedores sociales ni SAML, Sin dominio de interfaz alojada, Sin disparadores Lambda]
+profiles:
+  - name: web-app
+    example: examples/web-app/
+    fit: Inicio de sesión de una aplicación web o móvil que llama a una API serverless.
+    pricing:
+      meters: [cognito-essentials-mau]
+      shared: []

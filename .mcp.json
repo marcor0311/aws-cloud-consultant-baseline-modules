@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "baseline-terraform": {
+      "type": "stdio",
+      "command": "./.tools/terraform-mcp-server",
+      "args": ["stdio", "--toolsets", "registry"]
+    },
+    "baseline-aws-knowledge": {
+      "type": "http",
+      "url": "https://aws-mcp.us-east-1.api.aws/mcp"
+    }
+  }
+}

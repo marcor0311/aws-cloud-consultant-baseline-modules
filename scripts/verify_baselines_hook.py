@@ -13,10 +13,13 @@ def git(*args):
 
 
 def verify():
-    try:
-        base = git("merge-base", "HEAD", "main").strip().decode()
-    except subprocess.CalledProcessError:
-        base = "HEAD"
+    base = "HEAD"
+    for ref in ("origin/main", "main"):
+        try:
+            base = git("merge-base", "HEAD", ref).strip().decode()
+            break
+        except subprocess.CalledProcessError:
+            continue
     tracked = git("diff", "--name-only", "-z", base, "--", "aws/")
     staged = git("diff", "--cached", "--name-only", "-z", "--", "aws/")
     untracked = git("ls-files", "--others", "--exclude-standard", "-z", "--", "aws/")

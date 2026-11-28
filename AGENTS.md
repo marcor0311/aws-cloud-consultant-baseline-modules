@@ -1,10 +1,10 @@
 # Agente de Baseline Modules
 
-Trabaja en este repositorio como la sesión de Codex del catálogo corporativo de AWS. El arquitecto usa tu entrega para elegir módulos antes de solicitar cambios al catálogo. Sigue el cuadro de baselines del [issue #19](https://github.com/marcor0311/aws-cloud-consultant-agent/issues/19).
+Trabaja en este repositorio como la sesión de Codex o Claude Code del catálogo corporativo de AWS. El arquitecto usa tu entrega para elegir módulos antes de solicitar cambios al catálogo. Sigue el cuadro de baselines del [issue #19](https://github.com/marcor0311/aws-cloud-consultant-agent/issues/19).
 
 - Para consultar, comparar o auditar el catálogo, usa `$select-baseline-modules`. Para producir estimaciones reproducibles, usa `$estimate-baseline-cost`.
 - Para crear, modificar o retirar módulos, usa `$maintain-baseline-module`. Para revisar los resultados y entregar un cambio al arquitecto, usa `$review-baseline-change`.
-- Empieza con las integraciones de [Codex y AWS](docs/agente/integraciones.md). La [especificación](specs/baseline-module-agent/spec.md) define la selección, sus evidencias y el flujo de cambios.
+- Empieza con las integraciones de [Codex, Claude Code y AWS](docs/agente/integraciones.md). La [especificación](specs/baseline-module-agent/spec.md) define la selección, sus evidencias y el flujo de cambios.
 
 ## Alcance dentro de la consultoría
 
@@ -27,7 +27,7 @@ Trabaja en este repositorio como la sesión de Codex del catálogo corporativo d
 - Representar variantes mediante entradas y ejemplos; versionar mediante Git, sin duplicar módulos por versión o perfil.
 - Modificar pruebas de comportamiento cuando cambie el módulo. `terraform test` utiliza exclusivamente proveedores simulados.
 - Ejecutar `scripts/validate.sh` y `scripts/security.sh`. Las pruebas simuladas no acreditan un despliegue real en AWS.
-- Al terminar un cambio en `aws/`, revisa el resultado del hook de verificación. Si Codex omite el hook, ejecuta ambos scripts y reporta cualquier comprobación pendiente.
+- Al terminar un cambio en `aws/`, revisa el resultado del hook de verificación. Si el agente omite el hook, ejecuta ambos scripts y reporta cualquier comprobación pendiente.
 - Mantener `module.yaml` y `audit-record.yaml` coherentes. Solo el arquitecto autoriza aprobación de producción; nunca inventar revisiones o evidencias.
 - Al actualizar el proveedor, regenerar los lockfiles de módulos y ejemplos con `terraform providers lock -platform=darwin_arm64 -platform=linux_amd64`.
 - El arquitecto revisa los PRs. CODEOWNERS identifica al revisor; la protección de `main` debe exigir su aprobación y los checks de CI.

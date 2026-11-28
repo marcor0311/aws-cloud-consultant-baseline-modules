@@ -1,10 +1,11 @@
 """Functional checks for the network, container, data and event modules."""
 
 import json
+from time import monotonic
 
 TAGS = {"Project": "baseline-poc", "Environment": "test"}
 ZONES = ["us-east-1a", "us-east-1b"]
-PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private", "ecs-fargate/web-service", "rds-postgres/single-az", "rds-postgres/multi-az"}
+PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private", "ecs-fargate/web-service", "rds-postgres/single-az", "rds-postgres/multi-az", "sns/fan-out"}
 
 
 def require(condition, message):
@@ -55,6 +56,22 @@ def prepare_platform(module, profile, directory, emulator):
         return {"identifier": f"probe-{profile}", "vpc_id": vpc, "private_subnet_ids": subnets,
                 "security_group_ids": [security_group(emulator, vpc, f"probe-{profile}-db")],
                 "deletion_protection": False, "skip_final_snapshot": True, "tags": TAGS}
+    if module == "sns":
+        sqs = emulator.client("sqs")
+        queues = {}
+        for name in ("billing", "shipping"):
+            url = sqs.create_queue(QueueName=f"probe-{name}")["QueueUrl"]
+            arn = sqs.get_queue_attributes(QueueUrl=url, AttributeNames=["QueueArn"])["Attributes"]["QueueArn"]
+            sqs.set_queue_attributes(QueueUrl=url, Attributes={"Policy": json.dumps({
+                "Version": "2012-10-17",
+                "Statement": [{
+                    "Effect": "Allow", "Principal": {"Service": "sns.amazonaws.com"}, "Action": "sqs:SendMessage",
+                    "Resource": arn,
+                    "Condition": {"ArnEquals": {"aws:SourceArn": "arn:aws:sns:us-east-1:000000000000:probe-orders"}},
+                }],
+            })})
+            queues[name] = arn
+        return {"name": "probe-orders", "queue_arns": queues, "tags": TAGS}
     raise RuntimeError(f"Caso sin preparación: {module}/{profile}")
 
 
@@ -139,7 +156,41 @@ def check_rds(profile, emulator, variables, outputs):
     return {"instance": variables["identifier"], "encryption": "passed", "force_ssl": "passed", "master_secret": "passed"}
 
 
+def receive(emulator, queue_arn, body, timeout=30):
+    sqs = emulator.client("sqs")
+    url = sqs.get_queue_url(QueueName=queue_arn.rsplit(":", 1)[1])["QueueUrl"]
+    deadline = monotonic() + timeout
+    while monotonic() < deadline:
+        for message in sqs.receive_message(QueueUrl=url, WaitTimeSeconds=2, MaxNumberOfMessages=10).get("Messages", []):
+            if body in message["Body"]:
+                return message["Body"]
+    raise RuntimeError(f"No llegó el mensaje a {queue_arn}.")
+
+
+def check_sns(emulator, variables, outputs):
+    sns = emulator.client("sns")
+    attributes = sns.get_topic_attributes(TopicArn=outputs["topic_arn"])["Attributes"]
+    require(attributes.get("KmsMasterKeyId") == "alias/aws/sns", "El tópico no está cifrado.")
+    policy = json.loads(attributes["Policy"])
+    require(any(item["Effect"] == "Deny" for item in policy["Statement"]), "Falta el rechazo de tráfico sin TLS.")
+    # AWS Emulator 1.0.385 evaluates aws:SecureTransport as false over HTTPS for SNS and SQS.
+    # The deny is verified above and lifted only inside the emulator to test delivery, then restored.
+    relaxed = {**policy, "Statement": [item for item in policy["Statement"] if item.get("Sid") != "DenyInsecureTransport"]}
+    sns.set_topic_attributes(TopicArn=outputs["topic_arn"], AttributeName="Policy", AttributeValue=json.dumps(relaxed))
+    try:
+        body = json.dumps({"order": "probe-1"})
+        sns.publish(TopicArn=outputs["topic_arn"], Message=body)
+        for queue in variables["queue_arns"].values():
+            require(receive(emulator, queue, "probe-1") == body, "La entrega no fue en bruto.")
+    finally:
+        sns.set_topic_attributes(TopicArn=outputs["topic_arn"], AttributeName="Policy", AttributeValue=attributes["Policy"])
+    return {"topic": variables["name"], "encryption": "passed", "fan_out": "passed", "raw_delivery": "passed",
+            "tls_deny": "verificada en la política; el emulador no evalúa aws:SecureTransport"}
+
+
 def check_platform(module, profile, emulator, variables, outputs):
+    if module == "sns":
+        return check_sns(emulator, variables, outputs)
     if module == "rds-postgres":
         return check_rds(profile, emulator, variables, outputs)
     if module == "ecs-fargate":

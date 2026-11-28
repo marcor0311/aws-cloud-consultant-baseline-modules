@@ -1,0 +1,6 @@
+aws_region = "us-east-1"
+name       = "poc-orders"
+queue_arns = {
+  billing  = "arn:aws:sqs:us-east-1:123456789012:poc-billing"
+  shipping = "arn:aws:sqs:us-east-1:123456789012:poc-shipping"
+}

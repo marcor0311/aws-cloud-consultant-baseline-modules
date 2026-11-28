@@ -1,0 +1,32 @@
+schema_version: 1
+module_id: sqs
+implementation_review: pending
+production_approval: pending
+aws_integration_validation: not_run
+implementation_agent: implementation_a
+last_local_validation:
+  date: '2026-11-27'
+  terraform: 1.14.8
+  aws_provider: 6.71.0
+  format: passed
+  validate: passed
+  mocked_tests_passed: 8
+  example_configurations_validated: 2
+  trivy: 0.76.1
+  high_or_critical_findings: 0
+validation_evidence:
+  test_definitions: tests/baseline.tftest.hcl
+  local_report: ../../reports/sqs.tests.log
+  ci_workflow: ../../.github/workflows/validate.yml
+  emulator:
+    version: 1.0.385
+    status: pending
+    scope: Validación funcional local de ambos perfiles por el agente de validación.
+integration_evidence:
+  github: GitHub CLI leyó el issue 19 y el PR 47. GitHub MCP deshabilitado y sin conector en la sesión.
+  terraform_mcp: Documentación de recursos del proveedor AWS 6.71.0 contrastada con el esquema local.
+  aws_mcp: Disponibilidad de CloudFormation en us-east-1 y documentación oficial de KMS y SQS.
+  agent_toolkit: Skill oficial securing-s3-buckets consultada por AWS MCP.
+  pricing: AWS Pricing MCP deshabilitado. Boto3 GetProducts devolvió NoCredentialsError. Precios del catálogo público regional.
+  aws_review: AWS DevOps Agent y AWS Security Agent deshabilitados y sin Agent Space conectado en la sesión.
+  backend_mcp: Sin conexión operativa al backend para esta validación del módulo.

@@ -20,18 +20,22 @@ def verify():
     tracked = git("diff", "--name-only", "-z", base, "--", "aws/")
     staged = git("diff", "--cached", "--name-only", "-z", "--", "aws/")
     untracked = git("ls-files", "--others", "--exclude-standard", "-z", "--", "aws/")
-    if not (tracked or staged or untracked):
+    paths = b"\0".join((tracked, staged, untracked)).decode().split("\0")
+    modules = sorted({path.split("/")[1] for path in paths if path.count("/") >= 2 and (ROOT / "aws" / path.split("/")[1] / "module.yaml").is_file()})
+    if not modules:
         return None
 
     report = ROOT / "reports" / "baseline-verifier.log"
     report.parent.mkdir(exist_ok=True)
     failures = []
     with report.open("w", encoding="utf-8") as log:
-        for script in ("scripts/validate.sh", "scripts/security.sh"):
-            print(f"\n$ {script}", file=log, flush=True)
-            result = subprocess.run(["bash", script], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+        commands = [["scripts/validate.sh", module] for module in modules]
+        commands.append(["scripts/security.sh", *modules])
+        for command in commands:
+            print(f"\n$ {' '.join(command)}", file=log, flush=True)
+            result = subprocess.run(["bash", *command], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
             if result.returncode:
-                failures.append(f"{script} (código {result.returncode})")
+                failures.append(f"{' '.join(command)} (código {result.returncode})")
     return failures
 
 

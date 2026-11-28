@@ -9,7 +9,17 @@ if ! command -v "$scanner" >/dev/null 2>&1; then
   exit 1
 fi
 scanner="$(command -v "$scanner")"
-modules="$(scripts/validate.sh --list)"
+if [[ $# -gt 0 ]]; then
+  for module_name in "$@"; do
+    if [[ ! "$module_name" =~ ^[a-z][a-z0-9-]+$ || ! -f "aws/$module_name/module.yaml" ]]; then
+      echo "Módulo desconocido: $module_name. Consulta scripts/validate.sh --list." >&2
+      exit 2
+    fi
+  done
+  modules="$(printf '%s\n' "$@")"
+else
+  modules="$(scripts/validate.sh --list)"
+fi
 while IFS= read -r module_name; do
   module="$repo_root/aws/$module_name"
   example_count=0

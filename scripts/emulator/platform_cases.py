@@ -1,8 +1,10 @@
 """Functional checks for the network, container, data and event modules."""
 
+import json
+
 TAGS = {"Project": "baseline-poc", "Environment": "test"}
 ZONES = ["us-east-1a", "us-east-1b"]
-PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https"}
+PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private"}
 
 
 def require(condition, message):
@@ -41,6 +43,8 @@ def prepare_platform(module, profile, directory, emulator):
         return {"name": "probe-web", "vpc_id": vpc, "public_subnet_ids": subnets,
                 "certificate_arn": certificate(emulator), "deletion_protection": False,
                 "security_group_ids": [security_group(emulator, vpc, "probe-web-alb")], "tags": TAGS}
+    if module == "ecr":
+        return {"name": "probe/api", "force_delete": True, "tags": TAGS}
     raise RuntimeError(f"Caso sin preparación: {module}/{profile}")
 
 
@@ -85,7 +89,20 @@ def check_alb(emulator, variables, outputs):
     return {"load_balancer": variables["name"], "listeners": "passed", "https_redirect": "passed", "target_group": "passed"}
 
 
+def check_ecr(emulator, variables, outputs):
+    ecr = emulator.client("ecr")
+    repository = ecr.describe_repositories(repositoryNames=[variables["name"]])["repositories"][0]
+    require(repository["repositoryUri"] == outputs["repository_url"], "URL del repositorio distinta.")
+    require(repository["imageTagMutability"] == "IMMUTABLE", "Las etiquetas no son inmutables.")
+    require(repository["imageScanningConfiguration"]["scanOnPush"], "Falta el escaneo al publicar.")
+    rules = json.loads(ecr.get_lifecycle_policy(repositoryName=variables["name"])["lifecyclePolicyText"])["rules"]
+    require([rule["selection"]["tagStatus"] for rule in rules] == ["untagged", "any"], "Política de ciclo de vida incorrecta.")
+    return {"repository": variables["name"], "immutable_tags": "passed", "scan_on_push": "passed", "lifecycle": "passed"}
+
+
 def check_platform(module, profile, emulator, variables, outputs):
+    if module == "ecr":
+        return check_ecr(emulator, variables, outputs)
     if module == "alb":
         return check_alb(emulator, variables, outputs)
     if module == "vpc":

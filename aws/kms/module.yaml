@@ -1,0 +1,28 @@
+schema_version: 1
+module_id: kms
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Clave KMS simétrica regional gestionada por el cliente para cifrar recursos del proyecto.
+  required_inputs: [alias_name]
+  dependencies: [Permisos KMS del principal de despliegue, IAM o política compatible con cada consumidor]
+  controls: [Rotación automática, Seguridad contra bloqueo de política, Ventana de eliminación de 30 días por defecto]
+  limits: [Clave de una región, Sin claves asimétricas o material externo]
+profiles:
+  - name: iam-delegated
+    example: examples/iam-delegated/
+    fit: Clave de uso dentro de la misma cuenta con la delegación a IAM de AWS KMS.
+    pricing:
+      meters: []
+      shared: [kms-keys, kms-requests]
+  - name: customer-policy
+    example: examples/customer-policy/
+    fit: Clave con política completa para autorizar al servicio o principal requerido.
+    pricing:
+      meters: []
+      shared: [kms-keys, kms-requests]

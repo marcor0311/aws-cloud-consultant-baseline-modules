@@ -19,25 +19,36 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
-      modules: ${{ steps.inventory.outputs.modules }}
+      modules: ${{ steps.selection.outputs.modules }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Descubrir módulos
-        id: inventory
-        run: |
-          modules="$(scripts/validate.sh --list | jq -Rsc 'split("\n") | map(select(length > 0))')"
-          printf 'modules=%s\n' "$modules" >> "$GITHUB_OUTPUT"
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Probar catálogo, costos y selección
         run: |
           python3 -m venv .venv
           .venv/bin/python -m pip install -r scripts/requirements-baseline.txt
           .venv/bin/python -m unittest discover -s tests
+      - name: Seleccionar módulos y ejemplos
+        id: selection
+        env:
+          BASE_COMMIT: ${{ github.event.pull_request.base.sha || github.event.before }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [[ "$EVENT" == workflow_dispatch ]]; then
+            selection="$(.venv/bin/python scripts/select_emulator_cases.py --all)"
+          else
+            selection="$(.venv/bin/python scripts/select_emulator_cases.py --base "$BASE_COMMIT")"
+          fi
+          jq -c . <<< "$selection"
+          printf 'modules=%s\n' "$(jq -c .modules <<< "$selection")" >> "$GITHUB_OUTPUT"
 
   terraform:
     name: Terraform (${{ matrix.module }})
     needs: catalog
+    if: ${{ needs.catalog.outputs.modules != '[]' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -50,6 +61,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
         with:
           terraform_version: 1.14.8
@@ -61,12 +73,15 @@ jobs:
 
   security:
     name: Seguridad Terraform
+    needs: catalog
+    if: ${{ needs.catalog.outputs.modules != '[]' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Instalar Trivy desde su release oficial
         env:
           GH_TOKEN: ${{ github.token }}
@@ -81,7 +96,12 @@ jobs:
           tar -xzf "$trivy_dir/trivy_0.76.1_Linux-64bit.tar.gz" -C "$trivy_dir" trivy
           printf '%s\n' "$trivy_dir" >> "$GITHUB_PATH"
       - name: Analizar módulos con los valores de sus ejemplos
-        run: scripts/security.sh
+        env:
+          SELECTED_MODULES: ${{ needs.catalog.outputs.modules }}
+        run: |
+          mapfile -t modules < <(jq -r '.[]' <<< "$SELECTED_MODULES")
+          scripts/security.sh "${modules[@]}"
+
 
   checks:
     name: Validación de baselines
@@ -95,4 +115,18 @@ jobs:
           CATALOG_RESULT: ${{ needs.catalog.result }}
           TERRAFORM_RESULT: ${{ needs.terraform.result }}
           SECURITY_RESULT: ${{ needs.security.result }}
-        run: test "$CATALOG_RESULT/$TERRAFORM_RESULT/$SECURITY_RESULT" = success/success/success
+          SELECTED_MODULES: ${{ needs.catalog.outputs.modules }}
+        run: |
+          check() {
+            local title="$1" result="$2" selected="$3"
+            case "$result/$selected" in
+              success/*) echo "$title pasó" ;;
+              skipped/'[]') echo "$title no aplica" ;;
+              *) echo "$title falló ($result)"; return 1 ;;
+            esac
+          }
+          failed=0
+          check "Catálogo" "$CATALOG_RESULT" required || failed=1
+          check "Terraform" "$TERRAFORM_RESULT" "$SELECTED_MODULES" || failed=1
+          check "Seguridad" "$SECURITY_RESULT" "$SELECTED_MODULES" || failed=1
+          exit "$failed"

@@ -1,0 +1,28 @@
+schema_version: 1
+module_id: cloudwatch-logs
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Grupo regional de CloudWatch Logs STANDARD con cifrado en reposo y retención finita.
+  required_inputs: [name, tags]
+  dependencies: [Permisos de escritura de la carga, Clave KMS regional y política del servicio si se selecciona customer-managed]
+  controls: [Cifrado en reposo, Retención de 30 días por defecto, Opción de clave KMS del consumidor]
+  limits: [Clase STANDARD, El consumidor administra permisos y clave, Sin suscripciones ni alarmas]
+profiles:
+  - name: service-managed
+    example: examples/service-managed/
+    fit: Cifrado administrado por CloudWatch Logs y retención de 30 días.
+    pricing:
+      meters: [logs-ingest, logs-storage]
+      shared: []
+  - name: customer-managed
+    example: examples/customer-managed/
+    fit: Cifrado con clave KMS del consumidor y ejemplo de retención de 90 días.
+    pricing:
+      meters: [logs-ingest, logs-storage]
+      shared: [kms-keys, kms-requests]

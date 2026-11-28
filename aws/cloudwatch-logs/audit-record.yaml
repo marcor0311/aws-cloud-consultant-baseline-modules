@@ -1,0 +1,22 @@
+schema_version: 1
+module_id: cloudwatch-logs
+implementation_review: pending
+production_approval: pending
+aws_integration_validation: not_run
+validation_evidence:
+  test_definitions: tests/baseline.tftest.hcl
+  local_report: ../../reports/cloudwatch-logs.tests.log
+  ci_workflow: ../../.github/workflows/validate.yml
+last_local_validation:
+  date: '2026-11-27'
+  terraform: 1.14.8
+  aws_provider: 6.71.0
+  format: passed
+  validate: passed
+  mocked_tests_passed: 4
+  example_configurations_validated: 2
+  trivy: 0.76.1
+  high_or_critical_findings: 0
+emulator_validation:
+  status: pending
+  required_version: 1.0.385

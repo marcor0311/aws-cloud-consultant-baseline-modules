@@ -1,0 +1,22 @@
+schema_version: 1
+module_id: step-functions
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Máquina de estados Standard con rol de mínimo privilegio, logs y trazas X-Ray.
+  required_inputs: [name, definition]
+  dependencies: [Funciones Lambda u otros servicios que orquesta el flujo]
+  controls: [Rol limitado a las funciones indicadas, Logs de ejecución sin datos sensibles, Trazas X-Ray]
+  limits: [Sin flujos Express, Sin cifrado con clave del cliente, Sin alias ni versiones]
+profiles:
+  - name: standard-workflow
+    example: examples/standard-workflow/
+    fit: Procesos de negocio de varios pasos con reintentos, esperas y decisiones, como pedidos o aprobaciones.
+    pricing:
+      meters: [sfn-standard-state-transitions]
+      shared: [cloudwatch-logs-ingestion]

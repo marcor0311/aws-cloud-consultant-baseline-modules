@@ -1,11 +1,11 @@
 """Functional checks for the network, container, data and event modules."""
 
 import json
-from time import monotonic
+from time import monotonic, sleep
 
 TAGS = {"Project": "baseline-poc", "Environment": "test"}
 ZONES = ["us-east-1a", "us-east-1b"]
-PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private", "ecs-fargate/web-service", "rds-postgres/single-az", "rds-postgres/multi-az", "sns/fan-out", "eventbridge/custom-bus"}
+PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private", "ecs-fargate/web-service", "rds-postgres/single-az", "rds-postgres/multi-az", "sns/fan-out", "eventbridge/custom-bus", "step-functions/standard-workflow"}
 
 
 def require(condition, message):
@@ -91,6 +91,8 @@ def prepare_platform(module, profile, directory, emulator):
         orders = service_queue(emulator, "probe-orders", "events.amazonaws.com", source)
         dead_letter = service_queue(emulator, "probe-events-dlq", "events.amazonaws.com", source)
         return {"bus_name": "probe-domain", "orders_queue_arn": orders, "dead_letter_queue_arn": dead_letter, "tags": TAGS}
+    if module == "step-functions":
+        return {"name": "probe-order-workflow", "tags": TAGS}
     raise RuntimeError(f"Caso sin preparación: {module}/{profile}")
 
 
@@ -226,7 +228,33 @@ def check_eventbridge(emulator, variables, outputs):
     return {"bus": variables["bus_name"], "pattern_routing": "passed", "dead_letter": "configured", "archive": "passed"}
 
 
+def execution(emulator, machine, payload, timeout=60):
+    sfn = emulator.client("stepfunctions")
+    arn = sfn.start_execution(stateMachineArn=machine, input=json.dumps(payload))["executionArn"]
+    deadline = monotonic() + timeout
+    while monotonic() < deadline:
+        result = sfn.describe_execution(executionArn=arn)
+        if result["status"] != "RUNNING":
+            return result
+        sleep(1)
+    raise RuntimeError("La ejecución no terminó a tiempo.")
+
+
+def check_step_functions(emulator, variables, outputs):
+    sfn = emulator.client("stepfunctions")
+    machine = sfn.describe_state_machine(stateMachineArn=outputs["state_machine_arn"])
+    require(machine["type"] == "STANDARD" and machine["tracingConfiguration"]["enabled"], "Flujo sin tipo Standard o sin trazas.")
+    require(machine["loggingConfiguration"]["level"] == "ERROR", "Nivel de logs incorrecto.")
+    accepted = execution(emulator, outputs["state_machine_arn"], {"amount": 10})
+    require(accepted["status"] == "SUCCEEDED" and json.loads(accepted["output"])["result"]["status"] == "accepted", "El pedido válido no se aceptó.")
+    rejected = execution(emulator, outputs["state_machine_arn"], {"amount": 0})
+    require(rejected["status"] == "FAILED", "El pedido inválido no falló.")
+    return {"state_machine": variables["name"], "accepted_path": "passed", "rejected_path": "passed", "tracing": "passed"}
+
+
 def check_platform(module, profile, emulator, variables, outputs):
+    if module == "step-functions":
+        return check_step_functions(emulator, variables, outputs)
     if module == "eventbridge":
         return check_eventbridge(emulator, variables, outputs)
     if module == "sns":

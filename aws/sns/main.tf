@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {}
 
 resource "aws_sns_topic" "this" {
   name              = var.name
-  kms_master_key_id = coalesce(var.kms_key_arn, "alias/aws/sns")
+  kms_master_key_id = var.kms_key_arn
   tags              = var.tags
 }
 

@@ -87,6 +87,17 @@ variable "source_security_group_id" {
   default     = null
 }
 
+variable "egress_cidr_blocks" {
+  description = "Destinos HTTPS de las tareas. Con null solo la VPC, donde viven los endpoints de interfaz de ECR, Logs y Secrets Manager. Con NAT, indica 0.0.0.0/0 de forma explícita."
+  type        = list(string)
+  default     = null
+
+  validation {
+    condition     = var.egress_cidr_blocks == null || alltrue([for block in coalesce(var.egress_cidr_blocks, []) : can(cidrnetmask(block))])
+    error_message = "Indica bloques IPv4 válidos."
+  }
+}
+
 variable "target_group_arn" {
   description = "Grupo de destinos del ALB. Con null el servicio no se registra en un balanceador."
   type        = string

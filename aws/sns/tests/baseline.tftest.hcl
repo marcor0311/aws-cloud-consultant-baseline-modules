@@ -8,15 +8,16 @@ mock_provider "aws" {
 }
 
 variables {
-  name = "poc-orders"
+  name        = "poc-orders"
+  kms_key_arn = "arn:aws:kms:us-east-1:123456789012:key/11111111-2222-3333-4444-555555555555"
 }
 
 run "topic_defaults" {
   command = apply
 
   assert {
-    condition     = aws_sns_topic.this.kms_master_key_id == "alias/aws/sns"
-    error_message = "El tópico se cifra con la clave administrada de SNS."
+    condition     = aws_sns_topic.this.kms_master_key_id == var.kms_key_arn
+    error_message = "El tópico se cifra con la clave del cliente."
   }
 
   assert {
@@ -46,6 +47,16 @@ run "service_publisher_and_queues" {
     condition     = aws_sns_topic_subscription.sqs["billing"].raw_message_delivery && aws_sns_topic_subscription.sqs["billing"].protocol == "sqs"
     error_message = "Las colas reciben el mensaje en bruto."
   }
+}
+
+run "rejects_kms_alias" {
+  command = plan
+
+  variables {
+    kms_key_arn = "alias/aws/sns"
+  }
+
+  expect_failures = [var.kms_key_arn]
 }
 
 run "rejects_unscoped_service" {

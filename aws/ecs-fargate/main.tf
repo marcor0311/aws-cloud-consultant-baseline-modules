@@ -1,8 +1,20 @@
 data "aws_region" "current" {}
 
+data "aws_vpc" "this" {
+  count = local.create_security_group && var.egress_cidr_blocks == null ? 1 : 0
+  id    = var.vpc_id
+}
+
+# Las capas de ECR se descargan de S3 por el endpoint de puerta de enlace.
+data "aws_ec2_managed_prefix_list" "s3" {
+  count = local.create_security_group ? 1 : 0
+  name  = "com.amazonaws.${data.aws_region.current.region}.s3"
+}
+
 locals {
   create_security_group = var.security_group_ids == null
   security_group_ids    = local.create_security_group ? aws_security_group.this[*].id : var.security_group_ids
+  egress_cidr_blocks    = var.egress_cidr_blocks != null ? var.egress_cidr_blocks : data.aws_vpc.this[*].cidr_block
   assume_ecs_tasks = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -119,15 +131,25 @@ resource "aws_vpc_security_group_ingress_rule" "source" {
   description                  = "Llamadas al contenedor"
 }
 
-# HTTPS hacia ECR, Logs, Secrets Manager y APIs. Otros destinos se agregan en el consumidor.
+# HTTPS hacia los endpoints de la VPC y S3. Otros destinos se agregan en el consumidor.
 resource "aws_vpc_security_group_egress_rule" "https" {
+  for_each          = local.create_security_group ? toset(local.egress_cidr_blocks) : toset([])
+  security_group_id = aws_security_group.this[0].id
+  ip_protocol       = "tcp"
+  from_port         = 443
+  to_port           = 443
+  cidr_ipv4         = each.value
+  description       = "HTTPS saliente"
+}
+
+resource "aws_vpc_security_group_egress_rule" "s3" {
   count             = local.create_security_group ? 1 : 0
   security_group_id = aws_security_group.this[0].id
   ip_protocol       = "tcp"
   from_port         = 443
   to_port           = 443
-  cidr_ipv4         = "0.0.0.0/0"
-  description       = "HTTPS saliente"
+  prefix_list_id    = data.aws_ec2_managed_prefix_list.s3[0].id
+  description       = "Capas de imagen en S3"
 }
 
 resource "aws_ecs_service" "this" {

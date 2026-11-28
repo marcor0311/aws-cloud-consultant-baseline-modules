@@ -2,6 +2,12 @@ mock_provider "aws" {
   mock_data "aws_region" {
     defaults = { region = "us-east-1" }
   }
+  mock_data "aws_vpc" {
+    defaults = { cidr_block = "10.0.0.0/16" }
+  }
+  mock_data "aws_ec2_managed_prefix_list" {
+    defaults = { id = "pl-63a5400a" }
+  }
   mock_resource "aws_iam_role" {
     defaults = { arn = "arn:aws:iam::123456789012:role/poc-api" }
   }
@@ -46,8 +52,8 @@ run "service_defaults" {
   }
 
   assert {
-    condition     = aws_vpc_security_group_egress_rule.https[0].from_port == 443 && length(aws_ecs_service.this.load_balancer) == 0
-    error_message = "La salida se limita a HTTPS y no hay balanceador si no se indica."
+    condition     = keys(aws_vpc_security_group_egress_rule.https) == ["10.0.0.0/16"] && aws_vpc_security_group_egress_rule.s3[0].prefix_list_id == "pl-63a5400a" && length(aws_ecs_service.this.load_balancer) == 0
+    error_message = "La salida HTTPS se limita a la VPC y a S3, y no hay balanceador si no se indica."
   }
 }
 
@@ -73,6 +79,19 @@ run "behind_alb_with_secrets" {
   assert {
     condition     = jsondecode(aws_iam_role_policy.execution_secrets[0].policy).Statement[0].Resource[0] == "arn:aws:secretsmanager:us-east-1:123456789012:secret:poc-db-AbCdEf" && jsondecode(aws_ecs_task_definition.this.container_definitions)[0].secrets[0].name == "DB_PASSWORD"
     error_message = "El rol de ejecución lee solo los secretos declarados y los inyecta en el contenedor."
+  }
+}
+
+run "explicit_nat_egress" {
+  command = apply
+
+  variables {
+    egress_cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  assert {
+    condition     = keys(aws_vpc_security_group_egress_rule.https) == ["0.0.0.0/0"]
+    error_message = "La salida a Internet solo existe si el consumidor la pide."
   }
 }
 

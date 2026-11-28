@@ -10,7 +10,7 @@ last_local_validation:
   aws_provider: 6.71.0
   format: passed
   validate: passed
-  mocked_tests_passed: 3
+  mocked_tests_passed: 4
   example_configurations_validated: 1
   trivy: 0.76.1
   high_or_critical_findings: 0

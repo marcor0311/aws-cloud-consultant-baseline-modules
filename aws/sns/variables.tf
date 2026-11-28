@@ -10,9 +10,14 @@ variable "name" {
 }
 
 variable "kms_key_arn" {
-  description = "Clave KMS del tópico. Con null se usa la clave administrada alias/aws/sns."
+  description = "Clave KMS gestionada por el cliente. Su política debe permitir a los servicios publicadores y suscriptores usarla."
   type        = string
-  default     = null
+  nullable    = false
+
+  validation {
+    condition     = can(regex("^arn:aws[a-z0-9-]*:kms:[a-z0-9-]+:[0-9]{12}:key/", var.kms_key_arn))
+    error_message = "Indica el ARN de una clave KMS con key/, sin alias."
+  }
 }
 
 variable "publisher_services" {

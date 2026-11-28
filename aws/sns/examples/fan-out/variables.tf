@@ -10,6 +10,12 @@ variable "name" {
   nullable    = false
 }
 
+variable "kms_key_arn" {
+  description = "Clave KMS del tópico."
+  type        = string
+  nullable    = false
+}
+
 variable "queue_arns" {
   description = "Colas suscritas por nombre."
   type        = map(string)

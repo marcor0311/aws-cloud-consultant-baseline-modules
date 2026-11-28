@@ -16,6 +16,7 @@ Crea un clúster con Container Insights, una definición de tarea Fargate ARM64,
 | `cpu` / `memory` | `number` | `256` / `512` |
 | `desired_count` | `number` | `2` |
 | `source_security_group_id` | `string` | `null` |
+| `egress_cidr_blocks` | `list(string)` | `null`, que solo permite la VPC y S3 |
 | `target_group_arn` | `string` | `null` |
 | `security_group_ids` | `list(string)` | `null`, que crea un grupo propio |
 | `environment` | `map(string)` | `{}` |
@@ -26,6 +27,6 @@ Crea un clúster con Container Insights, una definición de tarea Fargate ARM64,
 
 Salidas: `cluster_arn`, `service_name`, `task_definition_arn`, `task_role_arn`, `security_group_id` y `log_group_name`.
 
-Las tareas necesitan salida HTTPS para descargar la imagen y enviar logs: un NAT Gateway o endpoints de interfaz de ECR, Logs y Secrets Manager. La imagen debe estar compilada para ARM64. Como el sistema de archivos es de solo lectura, la aplicación debe escribir en volúmenes o en servicios externos.
+Las tareas necesitan HTTPS para descargar la imagen y enviar logs. Por defecto solo salen a la VPC y a S3, así que hacen falta endpoints de interfaz de `ecr.api`, `ecr.dkr`, `logs` y `secretsmanager`. Si en cambio usas NAT, pasa `egress_cidr_blocks = ["0.0.0.0/0"]` y acepta el hallazgo AWS-0104 de Trivy en el proyecto. La imagen debe estar compilada para ARM64. Como el sistema de archivos es de solo lectura, la aplicación debe escribir en volúmenes o en servicios externos.
 
 [Especificación del cambio](change-spec.md)

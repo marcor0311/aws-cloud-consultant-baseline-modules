@@ -85,7 +85,8 @@ def prepare_platform(module, profile, directory, emulator):
                 }],
             })})
             queues[name] = arn
-        return {"name": "probe-orders", "queue_arns": queues, "tags": TAGS}
+        key = emulator.client("kms").create_key(Description="probe-orders")["KeyMetadata"]["Arn"]
+        return {"name": "probe-orders", "kms_key_arn": key, "queue_arns": queues, "tags": TAGS}
     if module == "eventbridge":
         source = "arn:aws:events:us-east-1:000000000000:rule/probe-domain/order-created"
         orders = service_queue(emulator, "probe-orders", "events.amazonaws.com", source)
@@ -194,7 +195,7 @@ def receive(emulator, queue_arn, body, timeout=30):
 def check_sns(emulator, variables, outputs):
     sns = emulator.client("sns")
     attributes = sns.get_topic_attributes(TopicArn=outputs["topic_arn"])["Attributes"]
-    require(attributes.get("KmsMasterKeyId") == "alias/aws/sns", "El tópico no está cifrado.")
+    require(attributes.get("KmsMasterKeyId") == variables["kms_key_arn"], "El tópico no usa la clave del cliente.")
     policy = json.loads(attributes["Policy"])
     require(any(item["Effect"] == "Deny" for item in policy["Statement"]), "Falta el rechazo de tráfico sin TLS.")
     # AWS Emulator 1.0.385 evaluates aws:SecureTransport as false over HTTPS for SNS and SQS.

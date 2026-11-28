@@ -36,6 +36,7 @@ resource "aws_vpc_security_group_egress_rule" "targets" {
   description       = "Destinos del balanceador"
 }
 
+# trivy:ignore:AVD-AWS-0053 El perfil public-https es la entrada pública de la aplicación; internal = true lo cierra.
 resource "aws_lb" "this" {
   name                       = var.name
   load_balancer_type         = "application"

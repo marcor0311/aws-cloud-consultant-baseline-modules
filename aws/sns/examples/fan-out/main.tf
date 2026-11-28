@@ -1,6 +1,7 @@
 module "topic" {
   source            = "../.."
   name              = var.name
+  kms_key_arn       = var.kms_key_arn
   sqs_subscriptions = var.queue_arns
   tags              = var.tags
 }

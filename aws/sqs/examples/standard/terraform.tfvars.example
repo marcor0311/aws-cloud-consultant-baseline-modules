@@ -1,0 +1,4 @@
+aws_region        = "us-east-1"
+queue_name        = "poc-events"
+source_bucket_arn = "arn:aws:s3:::poc-inbound-documents"
+source_account_id = "123456789012"

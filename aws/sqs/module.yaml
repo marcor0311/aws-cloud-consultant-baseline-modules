@@ -1,0 +1,28 @@
+schema_version: 1
+module_id: sqs
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Cola Standard asíncrona con DLQ y autorización opcional para eventos de un bucket S3.
+  required_inputs: [name]
+  dependencies: [Bucket S3 regional si se reciben notificaciones, Clave KMS regional para el perfil standard-kms]
+  controls: [Cifrado en reposo, TLS para clientes, Política de DLQ limitada a la cola de origen, Publisher S3 limitado a bucket y cuenta]
+  limits: [Sin FIFO, Entrega al menos una vez, Sin creación del productor o consumidor]
+profiles:
+  - name: standard
+    example: examples/standard/
+    fit: Cola Standard con DLQ en SSE-SQS y un bucket S3 como productor.
+    pricing:
+      meters: [sqs-standard-requests]
+      shared: []
+  - name: standard-kms
+    example: examples/standard-kms/
+    fit: Cola Standard y DLQ para proyectos con requisito de clave KMS gestionada por el cliente.
+    pricing:
+      meters: [sqs-standard-requests]
+      shared: [kms-keys, kms-requests]

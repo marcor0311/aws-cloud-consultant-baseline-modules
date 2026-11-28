@@ -1,0 +1,12 @@
+# Alta de IAM para el consumidor de SQS
+
+| Campo | Registro |
+| --- | --- |
+| Origen y elección | El issue [#19](https://github.com/marcor0311/aws-cloud-consultant-agent/issues/19) define cómo se seleccionan y revisan los baselines. El objetivo del PoC pide un rol de ejecución para S3 → SQS → Lambda → DynamoDB y sus logs. Selección del candidato con `select-baseline-modules`. |
+| Alcance | Alta de `aws/iam` en la partición comercial desde `23364e3`, candidato `0.1.0`. Perfiles `queue-worker` y `queue-worker-encrypted`. |
+| Contrato | Terraform 1.9 a 1.x y AWS 6.71 a 6.x. El consumidor entrega el nombre del rol, las etiquetas y los ARN exactos de colas fuente, grupos de logs y tablas. Puede añadir objetos S3 y claves KMS. Salidas `role_arn` y `role_name`. |
+| Aceptación | Política de confianza restringida a Lambda. Únicamente consumo de las colas declaradas, escritura de streams de los grupos declarados, `PutItem` sobre las tablas declaradas y las operaciones opcionales acotadas. Formato, validación, pruebas simuladas, Trivy y comprobación de la creación y consulta del rol y su política en AWS Emulator. |
+| Impacto | Búsqueda de fuentes Terraform del módulo bajo los checkouts locales disponibles y de historial `aws/iam` en el repositorio. El alta agrega un rol y una política a los consumidores que incorporen un `source` nuevo. Para adoptar un rol existente, revisar ocupación del nombre e importar rol y política con el mismo nombre o asignar uno nuevo y actualizar la función. El nombre del rol es inmutable. |
+| Costo | El rol y su política IAM básicos tienen cargo directo de USD 0 por mes, sin suscripción a IAM Access Analyzer. El perfil cifrado comparte las dimensiones por clave-mes y llamadas KMS del consumidor. SQS, DynamoDB y CloudWatch Logs se cotizan por separado. [AWS IAM](https://aws.amazon.com/iam/getting-started/) |
+| Implementación | Rol con política inline independiente, validaciones de ARN, ejemplos, metadatos y pruebas unitarias. CI descubre la carpeta con `scripts/validate.sh --list`. |
+| Evidencia | AWS MCP comprobó disponibilidad de IAM en `us-east-1` y devolvió documentación de permisos de Lambda con SQS. Terraform MCP respondió `iam_role` (14465187) e `iam_role_policy` (14465189) para AWS 6.71.0. Los resultados locales se registran en [audit-record.yaml](audit-record.yaml). Revisión independiente y aprobación de la revisión Git a cargo del arquitecto en el PR. |

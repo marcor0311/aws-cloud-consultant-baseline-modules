@@ -34,3 +34,25 @@ Al iniciar una tarea, registra cuáles herramientas respondieron y cuáles requi
 Para contrastar un escenario con AWS Pricing Calculator, toma `aws_usage_type` y `aws_operation` de la cotización de cada SKU y confirma que correspondan a la dimensión de facturación. Envía las cantidades mensuales a `GetUsageLinesEstimatedCost` con tarifas públicas `BEFORE_DISCOUNTS`, cuando el perfil de facturación lo permita. Documenta partidas rechazadas y diferencias de tramos o franquicias respecto al cálculo local. [GetUsageLinesEstimatedCost](https://docs.aws.amazon.com/cli/latest/reference/bcm-pricing-calculator/get-usage-lines-estimated-cost.html)
 
 Referencias oficiales de [Agent Toolkit for AWS](https://docs.aws.amazon.com/agent-toolkit/latest/userguide/quick-start.html), [GitHub MCP](https://github.com/github/github-mcp-server), [Terraform MCP](https://developer.hashicorp.com/terraform/mcp-server/deploy/local), [AWS Pricing MCP](https://awslabs.github.io/mcp/servers/aws-pricing-mcp-server), [DevOps Agent](https://docs.aws.amazon.com/devopsagent/latest/userguide/connecting-to-devops-agent-remote-servers-authentication-and-security.html), [Security Agent](https://docs.aws.amazon.com/securityagent/latest/userguide/code-review-ide-integration.html) y [Diagram as Code](https://github.com/awslabs/diagram-as-code).
+
+## Claude Code
+
+El agente funciona igual desde Claude Code con la configuración del repo:
+
+| Pieza | Codex | Claude Code |
+| --- | --- | --- |
+| Instrucciones | `AGENTS.md` | `CLAUDE.md`, que importa `AGENTS.md` |
+| Skills | `.agents/skills/` (`$nombre`) | `.claude/skills/`, enlace a la misma carpeta (`/nombre`) |
+| MCP | `.codex/config.toml` | `.mcp.json` (Terraform, AWS Knowledge y AWS Pricing) |
+| Hook de verificación | `.codex/hooks.json` | `Stop` en `.claude/settings.json` |
+| Límite de gasto | `multi_agent = false` | `permissions.deny: ["Agent"]` |
+| Esfuerzo | `model_reasoning_effort = "low"` | `effortLevel: "low"` |
+| Modelo | Elección de cada usuario | Elección de cada usuario |
+| AWS Knowledge MCP | `enabled_tools` con 5 herramientas de conocimiento | `deny` de `run_script`, `get_presigned_url` y `get_tasks` |
+| AWS Emulator | `$validate-baseline-emulator` y Docker | `/validate-baseline-emulator` y Docker |
+| Búsqueda web | `web_search = "disabled"` | `permissions.deny: ["WebSearch", "WebFetch"]` |
+
+1. Instala Terraform MCP en `.tools/` como se indica arriba; ambos agentes usan el mismo binario.
+2. Abre el repo en Claude Code y aprueba los servidores de `.mcp.json` cuando lo solicite.
+3. Para las capacidades autenticadas de AWS, instala Agent Toolkit for AWS: `/plugin install aws-core@claude-plugins-official` y luego `/reload-plugins`.
+4. Para GitHub usa `gh` autenticado. Los servidores opcionales (DevOps y Security) se agregan a `.mcp.json` con los mismos comandos de `.codex/config.toml` cuando sus prerrequisitos estén listos.

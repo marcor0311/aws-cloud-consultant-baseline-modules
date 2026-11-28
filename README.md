@@ -18,7 +18,7 @@ Incluye ejemplos y pruebas automatizadas. La aprobación para producción está 
 - [Guía de uso y validación](docs/uso.md)
 - [Instrucciones para el agente](AGENTS.md)
 
-## Usar Codex en este repo
+## Usar Codex o Claude Code en este repo
 
 El repo trae su propia configuración en `.codex/` con límites de gasto (sin agentes en paralelo y esfuerzo `medium`), servidores MCP y el hook que verifica los módulos. Codex solo la aplica si el proyecto está marcado como confiable:
 
@@ -32,3 +32,5 @@ El repo trae su propia configuración en `.codex/` con límites de gasto (sin ag
 2. Comprueba que se aplica: `codex features list | grep '^multi_agent '` debe mostrar `false`.
 
 Sin este paso, Codex ignora `.codex/` y usa tu configuración personal.
+
+En Claude Code la misma configuración vive en `CLAUDE.md`, `.claude/` y `.mcp.json`; consulta [integraciones](docs/agente/integraciones.md#claude-code).

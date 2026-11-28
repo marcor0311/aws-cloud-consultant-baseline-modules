@@ -20,6 +20,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       modules: ${{ steps.selection.outputs.modules }}
+      emulator_cases: ${{ steps.selection.outputs.emulator_cases }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -44,6 +45,8 @@ jobs:
           fi
           jq -c . <<< "$selection"
           printf 'modules=%s\n' "$(jq -c .modules <<< "$selection")" >> "$GITHUB_OUTPUT"
+          # Casos sin cobertura en AWS Emulator 1.0.385; motivos en docs/agente/validacion-emulador.md.
+          printf 'emulator_cases=%s\n' "$(jq -c '[.cases[] | select((split("/")[0]) as $m | ["api-gateway", "eks", "sqs"] | index($m) | not)]' <<< "$selection")" >> "$GITHUB_OUTPUT"
 
   terraform:
     name: Terraform (${{ matrix.module }})
@@ -103,10 +106,46 @@ jobs:
           scripts/security.sh "${modules[@]}"
 
 
+
+  emulator:
+    name: AWS Emulator (${{ matrix.case }})
+    needs: catalog
+    if: ${{ needs.catalog.outputs.emulator_cases != '[]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        case: ${{ fromJSON(needs.catalog.outputs.emulator_cases) }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd
+        with:
+          terraform_version: 1.14.8
+          terraform_wrapper: false
+      - name: Preparar SDK y el emulador fijado
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install -r scripts/requirements-baseline.txt
+          docker build --platform linux/amd64 -t baseline-poc-aws-emulator:1.0.385 scripts/emulator
+      - name: Plan, apply, comprobación funcional y destroy
+        env:
+          EMULATOR_CASE: ${{ matrix.case }}
+        run: .venv/bin/python scripts/test_emulator.py --case "$EMULATOR_CASE" --evidence reports/emulator.json
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: aws-emulator-${{ strategy.job-index }}
+          path: reports/emulator.json
+          if-no-files-found: warn
+
   checks:
     name: Validación de baselines
     if: always()
-    needs: [catalog, terraform, security]
+    needs: [catalog, terraform, security, emulator]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -115,6 +154,8 @@ jobs:
           CATALOG_RESULT: ${{ needs.catalog.result }}
           TERRAFORM_RESULT: ${{ needs.terraform.result }}
           SECURITY_RESULT: ${{ needs.security.result }}
+          EMULATOR_RESULT: ${{ needs.emulator.result }}
+          EMULATOR_CASES: ${{ needs.catalog.outputs.emulator_cases }}
           SELECTED_MODULES: ${{ needs.catalog.outputs.modules }}
         run: |
           check() {
@@ -129,4 +170,5 @@ jobs:
           check "Catálogo" "$CATALOG_RESULT" required || failed=1
           check "Terraform" "$TERRAFORM_RESULT" "$SELECTED_MODULES" || failed=1
           check "Seguridad" "$SECURITY_RESULT" "$SELECTED_MODULES" || failed=1
+          check "AWS Emulator" "$EMULATOR_RESULT" "$EMULATOR_CASES" || failed=1
           exit "$failed"

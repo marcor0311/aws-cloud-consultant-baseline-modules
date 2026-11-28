@@ -45,8 +45,8 @@ jobs:
           fi
           jq -c . <<< "$selection"
           printf 'modules=%s\n' "$(jq -c .modules <<< "$selection")" >> "$GITHUB_OUTPUT"
-          # API Gateway (apply se cuelga) y EKS (lee subredes reales) no son emulables; ver docs/agente/validacion-emulador.md.
-          printf 'emulator_cases=%s\n' "$(jq -c '[.cases[] | select((split("/")[0]) as $m | ["api-gateway", "eks"] | index($m) | not)]' <<< "$selection")" >> "$GITHUB_OUTPUT"
+          # Casos sin cobertura en AWS Emulator 1.0.385; motivos en docs/agente/validacion-emulador.md.
+          printf 'emulator_cases=%s\n' "$(jq -c '[.cases[] | select((split("/")[0]) as $m | ["api-gateway", "eks", "sqs"] | index($m) | not)]' <<< "$selection")" >> "$GITHUB_OUTPUT"
 
   terraform:
     name: Terraform (${{ matrix.module }})

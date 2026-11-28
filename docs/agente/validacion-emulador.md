@@ -18,8 +18,9 @@ docker build --platform linux/amd64 -t baseline-poc-aws-emulator:1.0.385 scripts
 | CloudFront | Convergencia del estado Terraform | Pasa |
 | API Gateway | — | No aplica: `terraform apply` no termina en el emulador |
 | EKS | — | No aplica: el ejemplo lee subredes reales con data sources |
+| SQS | — | No aplica: el emulador deniega por HTTPS una política `Deny` con `aws:SecureTransport` y `aws:PrincipalIsAWSService` combinadas, que en AWS no aplica. La política del módulo no se debilita. El consumo SQS se cubre con `lambda/sqs-standard` |
 
-La CI excluye API Gateway y EKS del job del emulador y el check **Validación de baselines** los reporta como "no aplica". Para incorporarlos se necesita un adaptador funcional o fixtures de red emulados.
+AWS Emulator 1.0.385 responde a las APIs de los once servicios del catálogo (verificado el 27 de noviembre de 2026); las exclusiones son de casos concretos, no de servicios. La CI excluye API Gateway, EKS y SQS del job del emulador y el check **Validación de baselines** los reporta como "no aplica". Para incorporarlos se necesita un adaptador funcional o fixtures de red emulados.
 
 En un PR, `scripts/select_emulator_cases.py` compara HEAD con la rama base y selecciona los perfiles afectados. Un cambio compartido de validación incluye S3 y DynamoDB como muestra, y la ejecución manual del workflow valida todo el catálogo emulable.
 

@@ -1,0 +1,22 @@
+schema_version: 1
+module_id: alb
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Application Load Balancer con HTTPS, redirección desde HTTP, grupo de seguridad y grupo de destinos.
+  required_inputs: [name, vpc_id, subnet_ids, certificate_arn]
+  dependencies: [VPC con subredes en dos zonas, Certificado de ACM en la región]
+  controls: [TLS 1.2 o superior, Redirección HTTP a HTTPS, Cabeceras inválidas descartadas, Salida limitada al puerto de destino en la VPC, Protección contra borrado]
+  limits: [Un grupo de destinos por defecto, Sin WAF ni autenticación integrada, Sin IPv6]
+profiles:
+  - name: public-https
+    example: examples/public-https/
+    fit: Entrada pública HTTPS para servicios ECS Fargate, EKS o instancias en subredes privadas.
+    pricing:
+      meters: [alb-hours, alb-lcu-hours, public-ipv4-hours]
+      shared: []

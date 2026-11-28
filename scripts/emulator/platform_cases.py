@@ -5,7 +5,7 @@ from time import monotonic
 
 TAGS = {"Project": "baseline-poc", "Environment": "test"}
 ZONES = ["us-east-1a", "us-east-1b"]
-PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private", "ecs-fargate/web-service", "rds-postgres/single-az", "rds-postgres/multi-az", "sns/fan-out"}
+PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private", "ecs-fargate/web-service", "rds-postgres/single-az", "rds-postgres/multi-az", "sns/fan-out", "eventbridge/custom-bus"}
 
 
 def require(condition, message):
@@ -30,6 +30,20 @@ def network(emulator, public=True):
 def security_group(emulator, vpc, name):
     """AWS Emulator 1.0.385 rejects the provider's default egress revoke (ports 0 with protocol -1)."""
     return emulator.client("ec2").create_security_group(GroupName=name, Description=name, VpcId=vpc)["GroupId"]
+
+
+def service_queue(emulator, name, service, source_arn):
+    sqs = emulator.client("sqs")
+    url = sqs.create_queue(QueueName=name)["QueueUrl"]
+    arn = sqs.get_queue_attributes(QueueUrl=url, AttributeNames=["QueueArn"])["Attributes"]["QueueArn"]
+    sqs.set_queue_attributes(QueueUrl=url, Attributes={"Policy": json.dumps({
+        "Version": "2012-10-17",
+        "Statement": [{
+            "Effect": "Allow", "Principal": {"Service": service}, "Action": "sqs:SendMessage", "Resource": arn,
+            "Condition": {"ArnEquals": {"aws:SourceArn": source_arn}},
+        }],
+    })})
+    return arn
 
 
 def certificate(emulator):
@@ -72,6 +86,11 @@ def prepare_platform(module, profile, directory, emulator):
             })})
             queues[name] = arn
         return {"name": "probe-orders", "queue_arns": queues, "tags": TAGS}
+    if module == "eventbridge":
+        source = "arn:aws:events:us-east-1:000000000000:rule/probe-domain/order-created"
+        orders = service_queue(emulator, "probe-orders", "events.amazonaws.com", source)
+        dead_letter = service_queue(emulator, "probe-events-dlq", "events.amazonaws.com", source)
+        return {"bus_name": "probe-domain", "orders_queue_arn": orders, "dead_letter_queue_arn": dead_letter, "tags": TAGS}
     raise RuntimeError(f"Caso sin preparación: {module}/{profile}")
 
 
@@ -188,7 +207,28 @@ def check_sns(emulator, variables, outputs):
             "tls_deny": "verificada en la política; el emulador no evalúa aws:SecureTransport"}
 
 
+def check_eventbridge(emulator, variables, outputs):
+    events = emulator.client("events")
+    rule = events.describe_rule(Name="order-created", EventBusName=variables["bus_name"])
+    require(rule["Arn"] == outputs["rule_arns"]["order-created"], "Regla distinta de la publicada.")
+    target = events.list_targets_by_rule(Rule="order-created", EventBusName=variables["bus_name"])["Targets"][0]
+    require(target["DeadLetterConfig"]["Arn"] == variables["dead_letter_queue_arn"], "El destino no tiene DLQ.")
+    require(target["RetryPolicy"]["MaximumEventAgeInSeconds"] == 3600, "Política de reintentos incorrecta.")
+    archives = events.list_archives(EventSourceArn=events.describe_event_bus(Name=variables["bus_name"])["Arn"])["Archives"]
+    require(len(archives) == 1 and archives[0]["RetentionDays"] == 7, "Falta el archivo del bus.")
+    entries = [
+        {"EventBusName": variables["bus_name"], "Source": "poc.orders", "DetailType": "OrderCreated", "Detail": json.dumps({"id": "probe-1"})},
+        {"EventBusName": variables["bus_name"], "Source": "poc.other", "DetailType": "Ignored", "Detail": json.dumps({"id": "probe-ignored"})},
+    ]
+    require(events.put_events(Entries=entries)["FailedEntryCount"] == 0, "PutEvents rechazó eventos.")
+    received = json.loads(receive(emulator, variables["orders_queue_arn"], "probe-1"))
+    require(received["detail-type"] == "OrderCreated", "Llegó un evento distinto al filtrado.")
+    return {"bus": variables["bus_name"], "pattern_routing": "passed", "dead_letter": "configured", "archive": "passed"}
+
+
 def check_platform(module, profile, emulator, variables, outputs):
+    if module == "eventbridge":
+        return check_eventbridge(emulator, variables, outputs)
     if module == "sns":
         return check_sns(emulator, variables, outputs)
     if module == "rds-postgres":

@@ -1,0 +1,22 @@
+schema_version: 1
+module_id: eventbridge
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Bus de eventos personalizado con reglas por patrón hacia SQS, SNS o Lambda, reintentos, DLQ y archivo.
+  required_inputs: [bus_name, dead_letter_queue_arn]
+  dependencies: [Cola SQS de eventos no entregados, Destinos con política para events.amazonaws.com]
+  controls: [DLQ obligatoria, Reintentos acotados, Permiso Lambda limitado a su regla, Archivo para reproducción]
+  limits: [Un destino por regla, Sin destinos Step Functions ni API, Sin esquema registrado]
+profiles:
+  - name: custom-bus
+    example: examples/custom-bus/
+    fit: Integración por eventos de dominio entre servicios serverless o de contenedores.
+    pricing:
+      meters: [eventbridge-custom-events, eventbridge-archive-processing, eventbridge-archive-storage]
+      shared: []

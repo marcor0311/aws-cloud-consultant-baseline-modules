@@ -1,0 +1,6 @@
+aws_region     = "us-east-1"
+function_name  = "baseline-example"
+role_arn       = "arn:aws:iam::123456789012:role/baseline-execution"
+log_group_name = "/aws/lambda/baseline-example"
+filename       = "function.zip"
+tags           = { Project = "example", Environment = "dev", Owner = "platform", CostCenter = "engineering" }

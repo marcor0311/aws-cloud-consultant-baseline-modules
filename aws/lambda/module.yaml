@@ -1,0 +1,28 @@
+schema_version: 1
+module_id: lambda
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Función Lambda desde ZIP local con mapeo opcional de SQS Standard.
+  required_inputs: [function_name, role_arn, log_group_name, filename, handler, runtime, tags]
+  dependencies: [Paquete ZIP, Rol IAM de ejecución, Grupo CloudWatch Logs, Cola regional SQS Standard si se selecciona sqs-standard]
+  controls: [Sin permiso público ni URL de función, Grupo externo con retención propia, Reintento parcial para SQS, Validación de visibilidad]
+  limits: [Arquitectura x86_64, Un mapeo SQS Standard opcional, El consumidor define handler y redrive]
+profiles:
+  - name: zip
+    example: examples/zip/
+    fit: Función invocable mediante permisos IAM del consumidor.
+    pricing:
+      meters: [lambda-requests, lambda-x86-gb-seconds]
+      shared: []
+  - name: sqs-standard
+    example: examples/sqs-standard/
+    fit: Procesamiento por lotes de una cola SQS Standard con respuesta de fallos parciales.
+    pricing:
+      meters: [lambda-requests, lambda-x86-gb-seconds]
+      shared: []

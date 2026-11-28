@@ -1,0 +1,30 @@
+schema_version: 1
+module_id: iam
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Rol de ejecución de Lambda para consumir SQS, escribir en DynamoDB y registrar en CloudWatch Logs.
+  required_inputs: [role_name, queue_arns, log_group_arns, dynamodb_table_arns, tags]
+  dependencies: [Cola SQS y grupo de logs del consumidor, Tabla DynamoDB del consumidor]
+  controls: [Confianza solo en Lambda, Acciones y ARN acotados, Lectura de objetos y descifrado optativos]
+  limits: [Partición comercial AWS, Política de recursos y despliegue gestionados por el consumidor]
+profiles:
+  - name: queue-worker
+    example: examples/queue-worker/
+    fit: Procesar mensajes con los datos de la notificación y guardar el resultado.
+    pricing:
+      meters: []
+      shared: []
+  - name: queue-worker-encrypted
+    example: examples/queue-worker-encrypted/
+    fit: Leer objetos concretos y descifrar sus datos o los de una cola protegida con una clave administrada por el cliente.
+    required_inputs: [s3_object_arns, kms_key_arns]
+    dependencies: [Bucket con alcance por prefijo, Clave KMS que autorice al rol]
+    pricing:
+      meters: []
+      shared: [kms-keys, kms-requests]

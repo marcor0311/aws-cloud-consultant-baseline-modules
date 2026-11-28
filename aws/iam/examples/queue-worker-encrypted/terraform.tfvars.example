@@ -1,0 +1,8 @@
+aws_region          = "us-east-1"
+role_name           = "baseline-poc-worker"
+queue_arns          = ["arn:aws:sqs:us-east-1:123456789012:baseline-poc-events"]
+log_group_arns      = ["arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/baseline-poc-worker"]
+dynamodb_table_arns = ["arn:aws:dynamodb:us-east-1:123456789012:table/baseline-poc-results"]
+tags                = { Environment = "example" }
+s3_object_arns = ["arn:aws:s3:::baseline-poc-assets-example/incoming/*"]
+kms_key_arns   = ["arn:aws:kms:us-east-1:123456789012:key/00000000-0000-0000-0000-000000000001"]

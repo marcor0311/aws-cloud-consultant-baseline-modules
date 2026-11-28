@@ -46,6 +46,9 @@ El agente funciona igual desde Claude Code con la configuración del repo:
 | MCP | `.codex/config.toml` | `.mcp.json` (Terraform MCP y AWS Knowledge MCP) |
 | Hook de verificación | `.codex/hooks.json` | `Stop` en `.claude/settings.json` |
 | Límite de gasto | `multi_agent = false` | `permissions.deny: ["Agent"]` |
+| Esfuerzo | `model_reasoning_effort = "low"` | `effortLevel: "low"` |
+| Modelo | Elección de cada usuario | Elección de cada usuario |
+| AWS Knowledge MCP | `enabled_tools` con 5 herramientas de conocimiento | `deny` de `run_script`, `get_presigned_url` y `get_tasks` |
 | Búsqueda web | `web_search = "disabled"` | `permissions.deny: ["WebSearch", "WebFetch"]` |
 
 1. Instala Terraform MCP en `.tools/` como se indica arriba; ambos agentes usan el mismo binario.

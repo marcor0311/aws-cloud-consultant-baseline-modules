@@ -5,7 +5,7 @@ web_search = "disabled"
 
 # Gobernanza de gasto: limita el consumo de tokens para todo el equipo.
 # Súbelo solo para una tarea puntual: codex -c model_reasoning_effort=high
-model_reasoning_effort = "medium"
+model_reasoning_effort = "low"
 
 [features]
 # Los agentes en paralelo multiplican el contexto reenviado en cada paso.

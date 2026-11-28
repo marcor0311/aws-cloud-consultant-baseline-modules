@@ -1,8 +1,19 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "enabledMcpjsonServers": ["baseline-terraform", "baseline-aws-knowledge"],
+  "effortLevel": "low",
+  "enabledMcpjsonServers": [
+    "baseline-terraform",
+    "baseline-aws-knowledge"
+  ],
   "permissions": {
-    "deny": ["Agent", "WebSearch", "WebFetch"]
+    "deny": [
+      "Agent",
+      "WebSearch",
+      "WebFetch",
+      "mcp__baseline-aws-knowledge__aws___run_script",
+      "mcp__baseline-aws-knowledge__aws___get_presigned_url",
+      "mcp__baseline-aws-knowledge__aws___get_tasks"
+    ]
   },
   "hooks": {
     "Stop": [

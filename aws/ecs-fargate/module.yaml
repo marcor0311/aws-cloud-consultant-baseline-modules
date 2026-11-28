@@ -1,0 +1,22 @@
+schema_version: 1
+module_id: ecs-fargate
+provider: aws
+candidate_version: 0.1.0
+status: draft
+entrypoint: .
+readme: README.md
+terraform: ">= 1.9.0, < 2.0.0"
+aws_provider: ">= 6.71.0, < 7.0.0"
+consumer:
+  capability: Servicio de contenedores en ECS Fargate con clúster, tarea, roles, logs y registro opcional en un ALB.
+  required_inputs: [name, image, vpc_id, subnet_ids]
+  dependencies: [VPC con subredes privadas y salida HTTPS, Imagen en ECR, ALB si el servicio recibe tráfico HTTP]
+  controls: [Tareas sin IP pública, Sistema de archivos de solo lectura, Sin ECS Exec, Reversión automática de despliegues, Secretos inyectados desde Secrets Manager o SSM, Rol de aplicación sin permisos por defecto]
+  limits: [Un contenedor por tarea, Sin autoescalado, Arquitectura ARM64]
+profiles:
+  - name: web-service
+    example: examples/web-service/
+    fit: API o aplicación web en contenedores detrás de un ALB, sin administrar servidores.
+    pricing:
+      meters: [fargate-vcpu-hours-arm, fargate-gb-hours-arm, cloudwatch-logs-ingestion]
+      shared: [alb-hours, nat-gateway-hours]

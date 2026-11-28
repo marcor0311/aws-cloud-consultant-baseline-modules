@@ -4,7 +4,7 @@ import json
 
 TAGS = {"Project": "baseline-poc", "Environment": "test"}
 ZONES = ["us-east-1a", "us-east-1b"]
-PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private"}
+PLATFORM_PROFILES = {"vpc/private", "vpc/isolated", "alb/public-https", "ecr/private", "ecs-fargate/web-service"}
 
 
 def require(condition, message):
@@ -45,6 +45,11 @@ def prepare_platform(module, profile, directory, emulator):
                 "security_group_ids": [security_group(emulator, vpc, "probe-web-alb")], "tags": TAGS}
     if module == "ecr":
         return {"name": "probe/api", "force_delete": True, "tags": TAGS}
+    if module == "ecs-fargate":
+        vpc, subnets = network(emulator, public=False)
+        return {"name": "probe-api", "image": "public.ecr.aws/docker/library/nginx:1.27", "vpc_id": vpc,
+                "private_subnet_ids": subnets, "security_group_ids": [security_group(emulator, vpc, "probe-api-tasks")],
+                "tags": TAGS}
     raise RuntimeError(f"Caso sin preparación: {module}/{profile}")
 
 
@@ -100,7 +105,23 @@ def check_ecr(emulator, variables, outputs):
     return {"repository": variables["name"], "immutable_tags": "passed", "scan_on_push": "passed", "lifecycle": "passed"}
 
 
+def check_ecs(emulator, variables, outputs):
+    ecs = emulator.client("ecs")
+    service = ecs.describe_services(cluster=outputs["cluster_arn"], services=[outputs["service_name"]])["services"][0]
+    require(service["launchType"] == "FARGATE" and service["desiredCount"] == 2, "Servicio Fargate distinto del esperado.")
+    network = service["networkConfiguration"]["awsvpcConfiguration"]
+    require(network["assignPublicIp"] == "DISABLED" and set(network["subnets"]) == set(variables["private_subnet_ids"]), "Red del servicio incorrecta.")
+    require(service["deploymentConfiguration"]["deploymentCircuitBreaker"]["rollback"], "Falta la reversión automática.")
+    task = ecs.describe_task_definition(taskDefinition=outputs["task_definition_arn"])["taskDefinition"]
+    container = task["containerDefinitions"][0]
+    require(task["networkMode"] == "awsvpc" and container["readonlyRootFilesystem"], "Definición de tarea incorrecta.")
+    require(container["logConfiguration"]["options"]["awslogs-group"] == "/ecs/probe-api", "Logs del contenedor incorrectos.")
+    return {"service": outputs["service_name"], "network": "private", "circuit_breaker": "passed", "task_definition": "passed"}
+
+
 def check_platform(module, profile, emulator, variables, outputs):
+    if module == "ecs-fargate":
+        return check_ecs(emulator, variables, outputs)
     if module == "ecr":
         return check_ecr(emulator, variables, outputs)
     if module == "alb":

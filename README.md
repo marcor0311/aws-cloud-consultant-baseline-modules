@@ -11,8 +11,13 @@ El arquitecto selecciona los módulos para su diseño y el ingeniero los integra
 | [API Gateway](aws/api-gateway/README.md) | APIs HTTP conectadas a funciones Lambda. |
 | [EKS](aws/eks/README.md) | Kubernetes privado con nodos EC2 administrados. |
 | [CloudFront](aws/cloudfront/README.md) | CDN HTTPS con origen S3 privado. |
+| [KMS](aws/kms/README.md) | Claves de cifrado administradas por el cliente con rotación. |
+| [CloudWatch Logs](aws/cloudwatch-logs/README.md) | Grupos de logs con retención y cifrado. |
+| [SQS](aws/sqs/README.md) | Colas estándar con cola de mensajes fallidos y solo TLS. |
+| [IAM](aws/iam/README.md) | Roles de mínimo privilegio para servicios. |
+| [Lambda](aws/lambda/README.md) | Funciones con logs, rol propio y disparador SQS opcional. |
 
-Incluye ejemplos y pruebas automatizadas. La aprobación para producción está pendiente.
+Incluye ejemplos y pruebas automatizadas. La CI valida solo los módulos afectados por cada cambio (Terraform, seguridad y AWS Emulator); en `main` las ejecuciones se encolan y no se cancelan. La aprobación para producción está pendiente.
 
 - [Agente de Codex y catálogo para el arquitecto](docs/agente/README.md)
 - [Guía de uso y validación](docs/uso.md)
@@ -20,7 +25,7 @@ Incluye ejemplos y pruebas automatizadas. La aprobación para producción está 
 
 ## Usar Codex o Claude Code en este repo
 
-El repo trae su propia configuración en `.codex/` con límites de gasto (sin agentes en paralelo y esfuerzo `medium`), servidores MCP y el hook que verifica los módulos. Codex solo la aplica si el proyecto está marcado como confiable:
+El repo trae su propia configuración en `.codex/` con límites de gasto (sin agentes en paralelo y esfuerzo `low`; el modelo es el que cada persona tenga seleccionado), servidores MCP y el hook que verifica los módulos. Codex solo la aplica si el proyecto está marcado como confiable:
 
 1. Abre el repo en Codex y acepta **Trust** cuando lo pregunte, o agrega a `~/.codex/config.toml`:
 

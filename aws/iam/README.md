@@ -20,4 +20,4 @@ Usa `role_arn` al configurar la función Lambda para establecer la dependencia d
 
 El rol IAM básico se ofrece sin cargo adicional. Los servicios autorizados se cotizan según su uso. [AWS IAM](https://aws.amazon.com/iam/getting-started/)
 
-La [especificación del alta](change.md) registra impacto, criterios y evidencia. Las pruebas del módulo usan un proveedor simulado.
+La [especificación del alta](change-spec.md) registra impacto, criterios y evidencia. Las pruebas del módulo usan un proveedor simulado.

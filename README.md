@@ -17,3 +17,18 @@ Incluye ejemplos y pruebas automatizadas. La aprobación para producción está 
 - [Agente de Codex y catálogo para el arquitecto](docs/agente/README.md)
 - [Guía de uso y validación](docs/uso.md)
 - [Instrucciones para el agente](AGENTS.md)
+
+## Usar Codex en este repo
+
+El repo trae su propia configuración en `.codex/` con límites de gasto (sin agentes en paralelo y esfuerzo `medium`), servidores MCP y el hook que verifica los módulos. Codex solo la aplica si el proyecto está marcado como confiable:
+
+1. Abre el repo en Codex y acepta **Trust** cuando lo pregunte, o agrega a `~/.codex/config.toml`:
+
+   ```toml
+   [projects."/ruta/a/aws-cloud-consultant-baseline-modules"]
+   trust_level = "trusted"
+   ```
+
+2. Comprueba que se aplica: `codex features list | grep '^multi_agent '` debe mostrar `false`.
+
+Sin este paso, Codex ignora `.codex/` y usa tu configuración personal.

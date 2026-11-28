@@ -31,3 +31,11 @@ Trabaja en este repositorio como la sesión de Codex del catálogo corporativo d
 - Mantener `module.yaml` y `audit-record.yaml` coherentes. Solo el arquitecto autoriza aprobación de producción; nunca inventar revisiones o evidencias.
 - Al actualizar el proveedor, regenerar los lockfiles de módulos y ejemplos con `terraform providers lock -platform=darwin_arm64 -platform=linux_amd64`.
 - El arquitecto revisa los PRs. CODEOWNERS identifica al revisor; la protección de `main` debe exigir su aprobación y los checks de CI.
+
+## Gobernanza de gasto (FinOps para agentes)
+
+- No uses `spawn_agent`, `send_message` ni trabajo en paralelo. Procesa un módulo o perfil a la vez y termina antes de pasar al siguiente.
+- No hagas polling. Ejecuta pruebas largas (p. ej. AWS Emulator) en primer plano con timeout amplio y espera el resultado en una sola llamada.
+- Limita la salida de comandos: usa `| tail -40` o filtra solo errores. No leas archivos completos si basta un fragmento.
+- Si una prueba falla dos veces por la misma causa, detente y reporta en lugar de reintentar en bucle.
+- Al terminar cada módulo, resume el estado en 3–5 líneas para poder continuar en una sesión nueva.
